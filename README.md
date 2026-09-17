@@ -33,6 +33,8 @@ Discover high-fit business signals earlier. Prioritize them by urgency and comme
 
 The system is designed to work with a broad, region-aware catalog of public sources, including:
 
+- Registry backbone: https://github.com/public-apis/public-apis
+
 - Government procurement portals
 - Tender and contracts databases
 - Company registries and enterprise filings
@@ -57,6 +59,14 @@ The system is designed to work with a broad, region-aware catalog of public sour
 - Nigeria BPP Procurement Portal
 - Australia ABN datasets
 - Canada open procurement datasets
+- UK ONS API
+- Police UK API
+- UK Food Standards Agency open data
+- UK Legislation Changes
+- UK Environment Agency flood monitoring
+- UK Land Registry Price Paid data
+- UK National Archives API
+- NHS Scotland Open Data
 - National procurement and public data portals across regions
 
 ## Typical use cases

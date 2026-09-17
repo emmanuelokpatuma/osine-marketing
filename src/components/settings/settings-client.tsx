@@ -168,6 +168,7 @@ export function SettingsClient({
               <div className="text-sm font-medium">{source.name}</div>
               <div className="text-xs text-[var(--color-muted)]">
                 {source.category} · {source.access} · {source.status}
+                {source.registry ? ` · ${source.registry}` : ""}
               </div>
             </a>
           ))}

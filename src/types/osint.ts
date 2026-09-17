@@ -87,11 +87,21 @@ export type ApiSourceDefinition = {
   key: string;
   name: string;
   regions: string[];
-  category: "tenders" | "jobs" | "company" | "news" | "planning" | "research";
+  category:
+    | "tenders"
+    | "jobs"
+    | "company"
+    | "news"
+    | "planning"
+    | "research"
+    | "government"
+    | "risk"
+    | "open_data";
   access: "free" | "free_tier";
   status: "live" | "planned";
   url: string;
   notes: string;
+  registry?: "public-apis";
   mappedConnector?: SourceName;
 };
 
