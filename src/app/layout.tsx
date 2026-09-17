@@ -23,7 +23,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Global Opportunity Radar",
-  description: "OSINT-powered marketing intelligence with evidence-backed buying signals.",
+  description: "Public-source intelligence for market monitoring, lead generation, and opportunity discovery.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

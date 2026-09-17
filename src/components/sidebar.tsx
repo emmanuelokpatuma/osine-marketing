@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/", label: "Global Radar", note: "Live opportunity feed" },
-  { href: "/live", label: "Live Monitor", note: "Auto-refresh prospects" },
-  { href: "/settings", label: "Signal Profiles", note: "Brand and target setup" },
+  { href: "/", label: "Global Radar", note: "Opportunity feed" },
+  { href: "/live", label: "Live Monitor", note: "Auto-refresh leads" },
+  { href: "/settings", label: "Signal Profiles", note: "Regions and targets" },
 ];
 
 export function Sidebar() {
@@ -15,8 +15,8 @@ export function Sidebar() {
   return (
     <aside className="w-72 shrink-0 border-r border-[var(--color-rule)] bg-[var(--color-panel)] p-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">OSINT Opportunity AI</p>
-        <h1 className="mt-2 text-2xl leading-tight">UK Market Intelligence</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Public-source intelligence</p>
+        <h1 className="mt-2 text-2xl leading-tight">Global Opportunity Radar</h1>
       </div>
       <nav className="mt-8 flex flex-col gap-2">
         {NAV.map((item) => {

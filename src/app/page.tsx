@@ -15,10 +15,10 @@ export default async function Home() {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Investor Mode</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Public-source intelligence</p>
           <h2 className="mt-1 text-3xl leading-tight">Global Opportunity Radar</h2>
-          <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted)]">
-            Evidence-backed OSINT signals converted into ranked opportunities for your UK market focus.
+          <p className="mt-2 max-w-3xl text-sm text-[var(--color-muted)]">
+            Monitor public signals across markets, companies, procurement, hiring, and news to surface higher-fit prospects and business opportunities before competitors do.
           </p>
         </div>
         <a
@@ -29,7 +29,7 @@ export default async function Home() {
         </a>
       </div>
 
-      <section className="mt-6 grid gap-3 md:grid-cols-3">
+      <section className="mt-6 grid gap-3 md:grid-cols-4">
         <div className="rounded-xl border border-[var(--color-rule)] bg-white/80 p-4">
           <div className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">Signals</div>
           <div className="mt-1 text-2xl font-semibold">{result.signals.length}</div>
@@ -39,23 +39,29 @@ export default async function Home() {
           <div className="mt-1 text-2xl font-semibold">{result.opportunities.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-rule)] bg-white/80 p-4">
+          <div className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">High-fit leads</div>
+          <div className="mt-1 text-2xl font-semibold">
+            {result.opportunities.filter((item) => item.score >= 75).length}
+          </div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-rule)] bg-white/80 p-4">
           <div className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">Coverage</div>
           <div className="mt-1 text-sm font-medium">
-            {workspace.monitorConfig.regions.join(", ")} · {liveCount}/{sources.length} APIs live
+            {workspace.monitorConfig.regions.join(", ")} · {liveCount}/{sources.length} source(s) live
           </div>
         </div>
       </section>
 
       <section className="mt-4 rounded-xl border border-[var(--color-rule)] bg-white/80 p-4 text-sm text-[var(--color-muted)]">
-        Last generated {new Date(result.generatedAt).toLocaleString()} · min opportunity score {workspace.monitorConfig.minOpportunityScore}
+        Last generated {new Date(result.generatedAt).toLocaleString()} · minimum opportunity score {workspace.monitorConfig.minOpportunityScore}
       </section>
 
       <section className="mt-8">
-        <h3 className="text-xl">Top opportunities</h3>
+        <h3 className="text-xl">Top ranked opportunities</h3>
         <div className="mt-4 grid gap-4 xl:grid-cols-2">
           {result.opportunities.length === 0 ? (
             <div className="rounded-xl border border-[var(--color-rule)] bg-white/80 p-5 text-sm text-[var(--color-muted)]">
-              No opportunities yet. Add more entities in Signal Profiles to increase coverage.
+              No active opportunities yet. Add more monitored entities or widen the target regions to expand the signal set.
             </div>
           ) : (
             result.opportunities.slice(0, 12).map((item) => (
@@ -66,24 +72,24 @@ export default async function Home() {
       </section>
 
       <section className="mt-10">
-        <h3 className="text-xl">Source health</h3>
+        <h3 className="text-xl">Source coverage</h3>
         <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--color-rule)] bg-white/85">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-[var(--color-rule)] bg-[var(--color-panel)] text-xs uppercase tracking-[0.1em] text-[var(--color-muted)]">
               <tr>
                 <th className="px-4 py-3">Source</th>
+                <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Records</th>
                 <th className="px-4 py-3">Notes</th>
               </tr>
             </thead>
             <tbody>
-              {result.sourceHealth.map((item) => (
-                <tr key={item.source} className="border-b border-[var(--color-rule)] last:border-b-0">
-                  <td className="px-4 py-3">{item.source}</td>
+              {sources.slice(0, 12).map((item) => (
+                <tr key={item.key} className="border-b border-[var(--color-rule)] last:border-b-0">
+                  <td className="px-4 py-3 font-medium">{item.name}</td>
+                  <td className="px-4 py-3 capitalize">{item.category}</td>
                   <td className="px-4 py-3">{item.status}</td>
-                  <td className="px-4 py-3">{item.records}</td>
-                  <td className="px-4 py-3 text-[var(--color-muted)]">{item.message}</td>
+                  <td className="px-4 py-3 text-[var(--color-muted)]">{item.notes}</td>
                 </tr>
               ))}
             </tbody>
