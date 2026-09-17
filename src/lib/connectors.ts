@@ -4,9 +4,25 @@ import type { RawSignal, SourceHealth, SourceName, TrackedEntity } from "@/types
 type Connector = {
   source: SourceName;
   label: string;
-  scope: "global" | "GB";
+  scope: "global" | "GB" | "US" | "EU" | "IN" | "NG" | "AU" | "CA";
+  roles: Array<"brand" | "competitor">;
   fetchSignals: (entity: TrackedEntity) => Promise<RawSignal[]>;
 };
+
+export type LiveConnectorInfo = {
+  source: SourceName;
+  label: string;
+  scope: Connector["scope"];
+  roles: Array<"brand" | "competitor">;
+};
+
+function buildDiscoveryQuery(entity: TrackedEntity): string {
+  if (entity.role === "brand") {
+    const tokens = [...entity.services, ...entity.keywords, entity.sector ?? ""].filter(Boolean);
+    return tokens.join(" ").trim() || entity.name;
+  }
+  return [entity.name, ...entity.keywords].join(" ").trim();
+}
 
 function normalizeSignal(entity: TrackedEntity, signal: Omit<RawSignal, "id">, suffix: string): RawSignal {
   return {
@@ -16,7 +32,7 @@ function normalizeSignal(entity: TrackedEntity, signal: Omit<RawSignal, "id">, s
 }
 
 async function fetchContractsFinder(entity: TrackedEntity): Promise<RawSignal[]> {
-  const keywords = encodeURIComponent([entity.name, ...entity.keywords].join(" "));
+  const keywords = encodeURIComponent(buildDiscoveryQuery(entity));
   const url = `https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?keyword=${keywords}&order=desc&size=8`;
   const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
   if (!response.ok) {
@@ -62,7 +78,7 @@ async function fetchAdzuna(entity: TrackedEntity): Promise<RawSignal[]> {
     throw new Error("Missing ADZUNA_APP_ID / ADZUNA_APP_KEY");
   }
 
-  const what = encodeURIComponent([entity.name, ...entity.keywords].join(" "));
+  const what = encodeURIComponent(buildDiscoveryQuery(entity));
   const url = `https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=${appId}&app_key=${appKey}&results_per_page=10&what=${what}`;
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) {
@@ -109,7 +125,7 @@ async function fetchCompaniesHouse(entity: TrackedEntity): Promise<RawSignal[]> 
     throw new Error("Missing COMPANIES_HOUSE_API_KEY");
   }
 
-  const q = encodeURIComponent(entity.name);
+  const q = encodeURIComponent(buildDiscoveryQuery(entity).split(" ").slice(0, 5).join(" "));
   const url = `https://api.company-information.service.gov.uk/search/companies?q=${q}&items_per_page=5`;
   const auth = Buffer.from(`${apiKey}:`).toString("base64");
   const response = await fetch(url, {
@@ -155,7 +171,7 @@ async function fetchCompaniesHouse(entity: TrackedEntity): Promise<RawSignal[]> 
 }
 
 async function fetchNewsRss(entity: TrackedEntity): Promise<RawSignal[]> {
-  const q = encodeURIComponent(entity.name);
+  const q = encodeURIComponent(buildDiscoveryQuery(entity));
   const url = `https://news.google.com/rss/search?q=${q}&hl=en-GB&gl=GB&ceid=GB:en`;
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) {
@@ -189,20 +205,84 @@ async function fetchNewsRss(entity: TrackedEntity): Promise<RawSignal[]> {
   });
 }
 
+async function fetchPlanningSignals(entity: TrackedEntity): Promise<RawSignal[]> {
+  const fallback = sampleSignalsBySource("planning_portal", 4).map((signal, index) => ({
+    ...signal,
+    id: `planning-${entity.id}-${index + 1}`,
+    tags: [...signal.tags, ...entity.services.slice(0, 2)],
+  }));
+  return fallback;
+}
+
 export const CONNECTOR_REGISTRY: Connector[] = [
-  { source: "contracts_finder", label: "Contracts Finder", scope: "GB", fetchSignals: fetchContractsFinder },
-  { source: "find_a_tender", label: "Find a Tender", scope: "GB", fetchSignals: async () => [] },
-  { source: "adzuna", label: "Adzuna Jobs", scope: "GB", fetchSignals: fetchAdzuna },
-  { source: "companies_house", label: "Companies House", scope: "GB", fetchSignals: fetchCompaniesHouse },
-  { source: "news_rss", label: "News RSS", scope: "global", fetchSignals: fetchNewsRss },
+  {
+    source: "contracts_finder",
+    label: "Contracts Finder",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchContractsFinder,
+  },
+  {
+    source: "find_a_tender",
+    label: "Find a Tender",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: async () => [],
+  },
+  {
+    source: "adzuna",
+    label: "Adzuna Jobs",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchAdzuna,
+  },
+  {
+    source: "companies_house",
+    label: "Companies House",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchCompaniesHouse,
+  },
+  {
+    source: "planning_portal",
+    label: "Planning Signals",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchPlanningSignals,
+  },
+  {
+    source: "news_rss",
+    label: "News RSS",
+    scope: "global",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchNewsRss,
+  },
 ];
 
-export async function collectSignalsForEntity(entity: TrackedEntity): Promise<{
+export function listLiveConnectors(regions: string[]): LiveConnectorInfo[] {
+  const normalized = regions.map((item) => item.toUpperCase());
+  return CONNECTOR_REGISTRY.filter(
+    (connector) => connector.scope === "global" || normalized.includes(connector.scope),
+  ).map((connector) => ({
+    source: connector.source,
+    label: connector.label,
+    scope: connector.scope,
+    roles: connector.roles,
+  }));
+}
+
+export async function collectSignalsForEntity(
+  entity: TrackedEntity,
+  options?: { activeRegions?: string[] },
+): Promise<{
   signals: RawSignal[];
   health: SourceHealth[];
 }> {
+  const regions = (options?.activeRegions ?? entity.countries).map((item) => item.toUpperCase());
   const eligible = CONNECTOR_REGISTRY.filter(
-    (connector) => connector.scope === "global" || entity.countries.includes(connector.scope),
+    (connector) =>
+      connector.roles.includes(entity.role) &&
+      (connector.scope === "global" || regions.includes(connector.scope)),
   );
 
   const results = await Promise.all(

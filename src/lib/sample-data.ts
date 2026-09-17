@@ -22,6 +22,20 @@ const seed: SeedInput[] = [
     publishedAtOffsetHours: 5,
   },
   {
+    source: "find_a_tender",
+    signalType: "tender",
+    title: "Platform engineering services framework",
+    summary:
+      "High-value procurement opportunity requesting cloud operating model and SRE support capabilities.",
+    sourceUrl: "https://www.find-tender.service.gov.uk/Notice/example-platform-framework",
+    companyName: "UK Shared Services Procurement Hub",
+    location: "United Kingdom",
+    sector: "Public Sector",
+    confidence: 0.89,
+    tags: ["framework", "platform", "sre"],
+    publishedAtOffsetHours: 11,
+  },
+  {
     source: "contracts_finder",
     signalType: "tender",
     title: "Cloud migration and managed platform services",
@@ -48,6 +62,20 @@ const seed: SeedInput[] = [
     confidence: 0.75,
     tags: ["replatform", "cloud", "modernization", "checkout"],
     publishedAtOffsetHours: 14,
+  },
+  {
+    source: "planning_portal",
+    signalType: "planning",
+    title: "Planning approved for 82,000 sq ft logistics warehouse",
+    summary:
+      "Commercial development indicates future demand for solar, CCTV, facilities, and managed services.",
+    sourceUrl: "https://www.planning.data.gov.uk/application/example-logistics-warehouse",
+    companyName: "Westbrook Industrial Developments",
+    location: "Leicester, UK",
+    sector: "Construction",
+    confidence: 0.81,
+    tags: ["warehouse", "planning", "development"],
+    publishedAtOffsetHours: 26,
   },
   {
     source: "companies_house",

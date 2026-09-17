@@ -10,7 +10,8 @@ export type SourceName =
   | "find_a_tender"
   | "adzuna"
   | "companies_house"
-  | "news_rss";
+  | "news_rss"
+  | "planning_portal";
 
 export type OpportunityProfile = {
   audience: string;
@@ -34,6 +35,11 @@ export type TrackedEntity = {
 export type Workspace = {
   brand: TrackedEntity | null;
   competitors: TrackedEntity[];
+  monitorConfig: {
+    refreshSeconds: number;
+    minOpportunityScore: number;
+    regions: string[];
+  };
 };
 
 export type RawSignal = {
@@ -75,6 +81,18 @@ export type SourceHealth = {
   status: "ok" | "fallback" | "error";
   message: string;
   records: number;
+};
+
+export type ApiSourceDefinition = {
+  key: string;
+  name: string;
+  regions: string[];
+  category: "tenders" | "jobs" | "company" | "news" | "planning" | "research";
+  access: "free" | "free_tier";
+  status: "live" | "planned";
+  url: string;
+  notes: string;
+  mappedConnector?: SourceName;
 };
 
 export type PipelineResult = {

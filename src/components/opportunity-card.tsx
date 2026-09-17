@@ -12,6 +12,8 @@ function sourceLabel(source: string): string {
       return "Companies House";
     case "news_rss":
       return "News RSS";
+    case "planning_portal":
+      return "Planning Portal";
     default:
       return source;
   }

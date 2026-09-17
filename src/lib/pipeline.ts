@@ -1,4 +1,4 @@
-import { collectSignalsForEntity } from "@/lib/connectors";
+import { collectSignalsForEntity, listLiveConnectors } from "@/lib/connectors";
 import { allEntities, getWorkspace, savePipeline } from "@/lib/store";
 import type {
   Opportunity,
@@ -110,8 +110,11 @@ export async function runPipeline(): Promise<PipelineResult> {
   const workspace = await getWorkspace();
   const entities = allEntities(workspace);
   const profile = profileFromEntity(workspace.brand);
+  const regions = workspace.monitorConfig.regions;
 
-  const collected = await Promise.all(entities.map((entity) => collectSignalsForEntity(entity)));
+  const collected = await Promise.all(
+    entities.map((entity) => collectSignalsForEntity(entity, { activeRegions: regions })),
+  );
   const signals = collected.flatMap((item) => item.signals);
   const sourceHealth = collected.flatMap((item) => item.health);
 
@@ -123,14 +126,24 @@ export async function runPipeline(): Promise<PipelineResult> {
   const dedupedSignals = [...dedupByUrl.values()].sort(
     (a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
   );
-  const opportunities = scoreSignals(dedupedSignals, profile);
+  const opportunities = scoreSignals(dedupedSignals, profile).filter(
+    (item) => item.score >= workspace.monitorConfig.minOpportunityScore,
+  );
+
+  const expectedLiveSources = listLiveConnectors(regions);
+  const expectedSourceHealth: SourceHealth[] = expectedLiveSources.map((source) => ({
+    source: source.source,
+    status: "error",
+    message: `${source.label} selected for ${source.scope} but returned no records in this cycle.`,
+    records: 0,
+  }));
 
   const result: PipelineResult = {
     generatedAt: new Date().toISOString(),
     profile,
     signals: dedupedSignals,
     opportunities,
-    sourceHealth: mergeSourceHealth(sourceHealth),
+    sourceHealth: mergeSourceHealth([...expectedSourceHealth, ...sourceHealth]),
   };
 
   await savePipeline(result);

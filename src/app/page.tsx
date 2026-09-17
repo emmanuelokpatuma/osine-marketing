@@ -1,10 +1,14 @@
 import { OpportunityCard } from "@/components/opportunity-card";
+import { catalogForRegions } from "@/lib/source-catalog";
 import { runPipeline } from "@/lib/pipeline";
-import { getPipeline } from "@/lib/store";
+import { getPipeline, getWorkspace } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const workspace = await getWorkspace();
+  const sources = catalogForRegions(workspace.monitorConfig.regions);
+  const liveCount = sources.filter((source) => source.status === "live").length;
   const result = (await getPipeline()) ?? (await runPipeline());
 
   return (
@@ -35,9 +39,15 @@ export default async function Home() {
           <div className="mt-1 text-2xl font-semibold">{result.opportunities.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-rule)] bg-white/80 p-4">
-          <div className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">Generated</div>
-          <div className="mt-1 text-sm font-medium">{new Date(result.generatedAt).toLocaleString()}</div>
+          <div className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">Coverage</div>
+          <div className="mt-1 text-sm font-medium">
+            {workspace.monitorConfig.regions.join(", ")} · {liveCount}/{sources.length} APIs live
+          </div>
         </div>
+      </section>
+
+      <section className="mt-4 rounded-xl border border-[var(--color-rule)] bg-white/80 p-4 text-sm text-[var(--color-muted)]">
+        Last generated {new Date(result.generatedAt).toLocaleString()} · min opportunity score {workspace.monitorConfig.minOpportunityScore}
       </section>
 
       <section className="mt-8">
