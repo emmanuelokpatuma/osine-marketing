@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #eef3ff;
-  --color-panel: #f8fbff;
-  --color-ink: #101828;
-  --color-muted: #5a667d;
-  --color-rule: #d6def0;
-  --color-accent: #5b5ce2;
-  --color-accent-soft: #e5e7ff;
+  --color-bg: #e7ecd9;
+  --color-panel: #f6f8ee;
+  --color-ink: #1a2217;
+  --color-muted: #5b6656;
+  --color-rule: #cdd7bf;
+  --color-accent: #556b2f;
+  --color-accent-soft: #e1e8cf;
   --color-danger: #962a2a;
 }
 
@@ -18,17 +18,17 @@
 
 body {
   background:
-    radial-gradient(circle at 12% 18%, rgba(91, 92, 226, 0.22) 0%, transparent 30%),
-    radial-gradient(circle at 82% 12%, rgba(14, 165, 233, 0.20) 0%, transparent 26%),
-    radial-gradient(circle at 84% 84%, rgba(249, 115, 22, 0.12) 0%, transparent 24%),
-    linear-gradient(180deg, #f8fbff 0%, var(--color-bg) 100%);
+    radial-gradient(circle at 12% 18%, rgba(85, 107, 47, 0.22) 0%, transparent 30%),
+    radial-gradient(circle at 82% 12%, rgba(122, 140, 86, 0.18) 0%, transparent 26%),
+    radial-gradient(circle at 84% 84%, rgba(168, 138, 64, 0.12) 0%, transparent 24%),
+    linear-gradient(180deg, #f7f9ef 0%, var(--color-bg) 100%);
   color: var(--color-ink);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   min-height: 100vh;
 }
 
 ::selection {
-  background: rgba(91, 92, 226, 0.22);
+  background: rgba(85, 107, 47, 0.22);
   color: var(--color-ink);
 }
 
