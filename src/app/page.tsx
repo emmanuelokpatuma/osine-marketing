@@ -226,7 +226,10 @@ export default async function Home() {
 
         <section className="rule-section">
           <h2 className="text-[34px] leading-[1.15] md:text-[38px]">What it tracks</h2>
-          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <p className="mt-3 max-w-[72ch] text-sm text-[var(--muted)]">
+            Coverage goes beyond generic OSINT. This platform actively targets procurement, grants, energy, real estate, grocery retail, and research-driven opportunity signals.
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div className="sector-card p-4">
               <div className="text-[var(--paper)]">Government procurement and tenders</div>
               <p className="mt-2 text-sm text-[var(--muted)]">See organizations buying, replacing, or expanding services.</p>
@@ -250,6 +253,22 @@ export default async function Home() {
             <div className="sector-card p-4">
               <div className="text-[var(--paper)]">News and narrative momentum</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Spot moments when the story is moving and timing matters.</p>
+            </div>
+            <div className="sector-card p-4">
+              <div className="text-[var(--paper)]">Energy and utility programmes</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Track net-zero, smart metering, grid, and utility funding opportunities, including DCC-style programmes.</p>
+            </div>
+            <div className="sector-card p-4">
+              <div className="text-[var(--paper)]">Real estate and property pipeline</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Follow planning, occupancy, development, and broker-landlord signals for commercial and local property markets.</p>
+            </div>
+            <div className="sector-card p-4">
+              <div className="text-[var(--paper)]">Food retail and grocery expansion</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Monitor chain activity, hiring, new sites, and supply changes across retailers such as Asda, Morrisons, and peers.</p>
+            </div>
+            <div className="sector-card p-4">
+              <div className="text-[var(--paper)]">SME, energy, and research grants</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Capture grants from government, corporates, and research bodies with deadline and eligibility context.</p>
             </div>
           </div>
         </section>

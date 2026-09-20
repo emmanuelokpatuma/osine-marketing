@@ -75,6 +75,12 @@ export function LeadGenerator({
           "Find energy-sector grants, funding calls, pilot programmes, and public opportunities. Include who is eligible, deadlines, likely buyers, and outreach or application next steps.",
       },
       {
+        title: "Utilities and DCC",
+        description: "Utility procurement, smart metering, DCC-related and grid-modernization signals.",
+        prompt:
+          "Find utility and energy procurement opportunities including smart metering, grid modernization, DCC-related programmes, and delivery partners. Return the strongest opportunities and compliant lead actions.",
+      },
+      {
         title: "Research grants",
         description: "University, R&D, innovation, and research funding leads.",
         prompt:
@@ -91,6 +97,12 @@ export function LeadGenerator({
         description: "Land, buildings, planning, brokers, landlords, and occupiers.",
         prompt:
           "Find real estate and property opportunities in the selected country. Include planning, occupancy, site expansion, brokers, landlords, and service buyers.",
+      },
+      {
+        title: "Food and grocery retail",
+        description: "Store rollouts, hiring, logistics, and supply-chain buyer signals.",
+        prompt:
+          "Find food and grocery retail opportunities, including chains like Asda and Morrisons, plus regional operators. Use hiring, expansion, procurement, and supply signals to identify high-intent buyers.",
       },
       {
         title: "Healthcare",
@@ -141,8 +153,16 @@ export function LeadGenerator({
         description: "Monitor government and company grant listings for SMEs and sector funding.",
       },
       {
+        title: "Energy and utilities",
+        description: "Watch DCC, grid programmes, and utility procurement notices.",
+      },
+      {
         title: "Research funding",
         description: "Track research councils, universities, innovation calls, and R&D awards.",
+      },
+      {
+        title: "Food retail chains",
+        description: "Follow grocery store expansion, buyer demand, and supplier opportunities.",
       },
       {
         title: "Ad signals",
