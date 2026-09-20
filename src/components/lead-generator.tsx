@@ -6,6 +6,7 @@ type LeadGeneratorResponse = {
   generatedAt: string;
   prompt: string;
   country: string;
+  mode: "priority" | "all";
   availableCountries: string[];
   opportunityCount: number;
   leadCount: number;
@@ -54,73 +55,61 @@ export function LeadGenerator({
   defaultCountry?: string;
 }) {
   const countryChoices = useMemo(() => ["All countries", ...countries], [countries]);
+  const prioritySectors = useMemo(
+    () => [
+      "Retail and grocery",
+      "Energy and utilities",
+      "Real estate",
+      "Technology",
+      "Healthcare",
+      "Financial services",
+      "Manufacturing and logistics",
+    ],
+    [],
+  );
   const leadModes = useMemo(
     () => [
       {
-        title: "Angel investors",
-        description: "Founders, investors, portfolio activity, and funding signals.",
+        title: "Retail and grocery",
+        description: "Store rollouts, procurement, logistics, and category expansion signals.",
         prompt:
-          "Find the strongest opportunities linked to angel investors, startup funding, and fast-growing companies. Include public signals, likely buyer intent, and a compliant outreach plan.",
+          "Find retail and grocery opportunities, including chains such as Asda and Morrisons plus regional operators. Use expansion, procurement, and hiring signals to identify high-intent buyers.",
       },
       {
-        title: "SME grants",
-        description: "Government and company grants for small and medium businesses.",
+        title: "Energy and utilities",
+        description: "Net-zero, utility procurement, smart metering, and grid modernization signals.",
         prompt:
-          "Find SME grant opportunities from government, local authorities, public agencies, and companies. Return all matching opportunities, deadlines, eligibility notes, and who should apply.",
+          "Find energy and utility opportunities including smart metering, DCC-related programmes, grid upgrades, and supplier demand. Return the strongest opportunities and compliant lead actions.",
       },
       {
-        title: "Energy grants",
-        description: "Funding and grant opportunities across energy, net zero, and utilities.",
+        title: "Real estate",
+        description: "Land, planning, occupancy, development, and commercial property signals.",
         prompt:
-          "Find energy-sector grants, funding calls, pilot programmes, and public opportunities. Include who is eligible, deadlines, likely buyers, and outreach or application next steps.",
+          "Find real estate opportunities in the selected country. Include planning applications, development activity, landlord and occupier expansion, and supplier-relevant buying intent.",
       },
       {
-        title: "Utilities and DCC",
-        description: "Utility procurement, smart metering, DCC-related and grid-modernization signals.",
+        title: "Technology",
+        description: "Cloud, AI, cybersecurity, software, and platform-transformation buyer signals.",
         prompt:
-          "Find utility and energy procurement opportunities including smart metering, grid modernization, DCC-related programmes, and delivery partners. Return the strongest opportunities and compliant lead actions.",
-      },
-      {
-        title: "Research grants",
-        description: "University, R&D, innovation, and research funding leads.",
-        prompt:
-          "Find research grants, R&D funding, university opportunities, and innovation calls. Include public signals, eligibility, deadlines, and what each grant is likely to support.",
-      },
-      {
-        title: "Events and conferences",
-        description: "Sector events, trade shows, sponsors, venues, and speaker pages.",
-        prompt:
-          "Find events and conferences where buying opportunities are likely, including sector events, local conferences, trade shows, and examples like Leeds Digital Conference. Include leads, attendees, sponsors, and next actions.",
-      },
-      {
-        title: "Property and real estate",
-        description: "Land, buildings, planning, brokers, landlords, and occupiers.",
-        prompt:
-          "Find real estate and property opportunities in the selected country. Include planning, occupancy, site expansion, brokers, landlords, and service buyers.",
-      },
-      {
-        title: "Food and grocery retail",
-        description: "Store rollouts, hiring, logistics, and supply-chain buyer signals.",
-        prompt:
-          "Find food and grocery retail opportunities, including chains like Asda and Morrisons, plus regional operators. Use hiring, expansion, procurement, and supply signals to identify high-intent buyers.",
+          "Find technology buyers showing intent through hiring, funding, platform migration, security upgrades, and product expansion. Return top opportunities and compliant outreach actions.",
       },
       {
         title: "Healthcare",
-        description: "Trusts, clinics, providers, compliance, and procurement.",
+        description: "Trusts, clinics, providers, compliance, and procurement signals.",
         prompt:
           "Find healthcare opportunities that show buying intent from procurement, hiring, compliance, and operational change. Return all matching opportunities and the best leads.",
       },
       {
-        title: "Ad and demand alerts",
-        description: "Public ad signals, campaign pages, and visible market intent.",
+        title: "Financial services",
+        description: "Banking, fintech, insurance, and regulatory change signals.",
         prompt:
-          "Find public signs of advertising or campaign activity on Google, YouTube, and open ad or transparency sources. Turn those into leads and explain what each one is likely buying.",
+          "Find financial-services and fintech opportunities tied to risk, compliance, platform modernization, payments, and hiring trends. Return high-intent leads and next actions.",
       },
       {
-        title: "B2B sector leads",
-        description: "General-purpose lead generation across all sectors.",
+        title: "Manufacturing and logistics",
+        description: "Supply-chain, warehousing, production, and distribution demand signals.",
         prompt:
-          "Find the most motivated buyers across all sectors in the selected country, prioritize the strongest opportunities, and explain what each lead needs.",
+          "Find manufacturing and logistics opportunities using planning, hiring, warehouse, procurement, and transport expansion signals. Return high-confidence buyer leads and actions.",
       },
     ],
     [],
@@ -176,6 +165,7 @@ export function LeadGenerator({
     "Find the strongest opportunities for buyers ready to move now. Group the results by the selected country and explain what each lead needs.",
   );
   const [country, setCountry] = useState(defaultCountry);
+  const [mode, setMode] = useState<"priority" | "all">("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LeadGeneratorResponse | null>(null);
@@ -188,7 +178,7 @@ export function LeadGenerator({
       const response = await fetch("/api/leads/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, country }),
+        body: JSON.stringify({ prompt, country, mode }),
       });
 
       if (!response.ok) {
@@ -211,7 +201,7 @@ export function LeadGenerator({
           <p className="kicker">Prompt chat</p>
           <h2 className="mt-3 text-[34px] leading-[1.15] md:text-[38px]">Build a full lead generator from one prompt</h2>
           <p className="mt-3 max-w-[70ch] text-sm text-[var(--muted)]">
-            Describe the buyer, sector, urgency, event, grant, or market signal. The generator returns every matching opportunity in the selected country, the filtered leads, and a Gemini brief you can use immediately.
+            Describe the buyer, sector, urgency, event, grant, or market signal. The generator returns demand and need signals across the selected country, including procurement, hiring, expansion, grants, and market movement.
           </p>
         </div>
         <button onClick={generate} className="instrument-button instrument-button-primary" disabled={loading}>
@@ -234,6 +224,43 @@ export function LeadGenerator({
               </button>
             ))}
           </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setMode("all")}
+              className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${
+                mode === "all"
+                  ? "border-[var(--signal)] bg-[rgba(46,110,100,0.16)]"
+                  : "border-[var(--rule)] bg-[rgba(16,19,24,0.45)]"
+              }`}
+            >
+              <div className="text-[var(--paper)]">All-seeing eye mode</div>
+              <div className="mt-1 text-[var(--muted)]">Track all sectors and surface any strong demand signal.</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("priority")}
+              className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${
+                mode === "priority"
+                  ? "border-[var(--signal)] bg-[rgba(46,110,100,0.16)]"
+                  : "border-[var(--rule)] bg-[rgba(16,19,24,0.45)]"
+              }`}
+            >
+              <div className="text-[var(--paper)]">Priority 7 lens</div>
+              <div className="mt-1 text-[var(--muted)]">Focus scoring on the seven strategic sectors first.</div>
+            </button>
+          </div>
+
+          {mode === "priority" ? (
+            <div className="mt-3 rounded-2xl border border-[var(--rule)] bg-[rgba(16,19,24,0.45)] p-3 text-xs text-[var(--muted)]">
+              Priority sectors: {prioritySectors.join(" | ")}
+            </div>
+          ) : (
+            <div className="mt-3 rounded-2xl border border-[var(--rule)] bg-[rgba(16,19,24,0.45)] p-3 text-xs text-[var(--muted)]">
+              All sectors active: the seven priority sectors still receive stronger ranking weight.
+            </div>
+          )}
 
           <label className="block text-sm text-[var(--muted)]">
             What do you want Gemini to find?
@@ -262,6 +289,10 @@ export function LeadGenerator({
                 <div className="sector-card p-4">
                   <div className="kicker uppercase tracking-[0.16em] text-[11px]">country</div>
                   <div className="mt-2 text-[var(--paper)]">{result.country}</div>
+                </div>
+                <div className="sector-card p-4">
+                  <div className="kicker uppercase tracking-[0.16em] text-[11px]">scan mode</div>
+                  <div className="mt-2 text-[var(--paper)]">{result.mode === "priority" ? "Priority 7 lens" : "All-seeing eye"}</div>
                 </div>
                 <div className="sector-card p-4">
                   <div className="kicker uppercase tracking-[0.16em] text-[11px]">opportunities</div>
@@ -345,7 +376,10 @@ export function LeadGenerator({
               <span className="text-[var(--paper)]">Example:</span> “Show me angel investors and SME grant opportunities in the UK, then draft a compliant outreach plan.”
             </div>
             <div className="border-t border-[var(--rule)] pt-3">
-              <span className="text-[var(--paper)]">Open watch sources:</span> Google News, Reddit, event pages, public company records, planning, procurement, grant portals, and research databases.
+              <span className="text-[var(--paper)]">Open watch sources:</span> Google News, Reddit, event pages, company records, planning, procurement, grant portals, and research databases.
+            </div>
+            <div className="border-t border-[var(--rule)] pt-3">
+              <span className="text-[var(--paper)]">Demand and need signals:</span> supplier demand, hiring demand, procurement, grants, policy movement, and expansion activity.
             </div>
           </div>
 

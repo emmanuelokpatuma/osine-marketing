@@ -225,50 +225,38 @@ export default async function Home() {
         </section>
 
         <section className="rule-section">
-          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">What it tracks</h2>
+          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Top 7 sectors to focus</h2>
           <p className="mt-3 max-w-[72ch] text-sm text-[var(--muted)]">
-            Coverage goes beyond generic OSINT. This platform actively targets procurement, grants, energy, real estate, grocery retail, and research-driven opportunity signals.
+            These seven sectors are the priority lens, not a hard limit. The platform still scans across all sectors and surfaces any strong demand or need signal.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Government procurement and tenders</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">See organizations buying, replacing, or expanding services.</p>
+              <div className="text-[var(--paper)]">Retail and grocery</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Track chains and suppliers through expansion, hiring, and procurement signals.</p>
             </div>
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Company registry and filing changes</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Watch director changes, filings, and ownership signals.</p>
+              <div className="text-[var(--paper)]">Energy and utilities</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Monitor net-zero programmes, utility procurement, and DCC-style demand.</p>
             </div>
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Hiring velocity and market demand</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Catch budget growth and internal change before the market notices.</p>
+              <div className="text-[var(--paper)]">Real estate</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Use planning, occupancy, and site-development signals to identify buyers.</p>
             </div>
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Policy and regulatory movement</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Track fresh rules, consultations, and government notices.</p>
+              <div className="text-[var(--paper)]">Technology</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Detect platform upgrades, security projects, and software modernization intent.</p>
             </div>
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Local planning and infrastructure signals</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Identify construction, expansion, and regional spending.</p>
+              <div className="text-[var(--paper)]">Healthcare</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Follow trust procurement, compliance change, and provider transformation signals.</p>
             </div>
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">News and narrative momentum</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Spot moments when the story is moving and timing matters.</p>
+              <div className="text-[var(--paper)]">Financial services</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Track risk, compliance, payments, and fintech transformation demand.</p>
             </div>
             <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Energy and utility programmes</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Track net-zero, smart metering, grid, and utility funding opportunities, including DCC-style programmes.</p>
-            </div>
-            <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Real estate and property pipeline</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Follow planning, occupancy, development, and broker-landlord signals for commercial and local property markets.</p>
-            </div>
-            <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">Food retail and grocery expansion</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Monitor chain activity, hiring, new sites, and supply changes across retailers such as Asda, Morrisons, and peers.</p>
-            </div>
-            <div className="sector-card p-4">
-              <div className="text-[var(--paper)]">SME, energy, and research grants</div>
-              <p className="mt-2 text-sm text-[var(--muted)]">Capture grants from government, corporates, and research bodies with deadline and eligibility context.</p>
+              <div className="text-[var(--paper)]">Manufacturing and logistics</div>
+              <p className="mt-2 text-sm text-[var(--muted)]">Identify supply-chain, warehouse, and distribution buyer activity early.</p>
             </div>
           </div>
         </section>
