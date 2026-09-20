@@ -40,12 +40,12 @@ export default async function Home() {
             <div className="hero-sweep" />
           </div>
 
-          <p className="kicker">Global signal intelligence, configured like an instrument</p>
+          <p className="kicker">Public-source intelligence for finding buyers</p>
           <h1 className="mt-4 max-w-[18ch] text-[46px] leading-[1.05] tracking-[-0.02em] text-[var(--paper)] md:text-[72px]">
-            Read the market like a navigation instrument.
+            Turn public data into leads you can act on.
           </h1>
           <p className="mt-7 max-w-[68ch] text-base leading-[1.6] text-[var(--muted)]">
-            Global Opportunity Radar turns open-source noise into clear operational signals. Track procurement, hiring, company filings, and regional policy movement with evidence you can act on.
+            Global Opportunity Radar watches public sources for signs that a business may be ready to buy, expand, hire, or respond to market change. It turns those signals into ranked leads, clear next steps, and compliant outreach guidance.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="/live" className="instrument-button instrument-button-primary">
@@ -61,7 +61,7 @@ export default async function Home() {
         </section>
 
         <section className="rule-section">
-          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Signal classes in this console</h2>
+          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">What it tracks</h2>
           <div className="mt-6 grid gap-2 text-[var(--muted)] md:grid-cols-2">
             <div>Government procurement and tenders</div>
             <div>Company registry and filing changes</div>
@@ -73,18 +73,18 @@ export default async function Home() {
         </section>
 
         <section className="rule-section">
-          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">How operation flows</h2>
+          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">How it works</h2>
           <ol className="mt-7 max-w-[68ch] space-y-4 text-[var(--muted)]">
-            <li><span className="data-mono mr-3 text-[var(--brass)]">1.</span> Select regions and service targets in signal profiles.</li>
-            <li><span className="data-mono mr-3 text-[var(--brass)]">2.</span> Ingest open signals from the public-api registry stack.</li>
-            <li><span className="data-mono mr-3 text-[var(--brass)]">3.</span> Rank opportunities by confidence and commercial fit.</li>
-            <li><span className="data-mono mr-3 text-[var(--brass)]">4.</span> Execute outreach from the live feed before market response catches up.</li>
+            <li><span className="data-mono mr-3 text-[var(--brass)]">1.</span> Pick the regions and sectors you care about.</li>
+            <li><span className="data-mono mr-3 text-[var(--brass)]">2.</span> Pull public signals from live open APIs and RSS feeds.</li>
+            <li><span className="data-mono mr-3 text-[var(--brass)]">3.</span> Score them into leads by confidence and fit.</li>
+            <li><span className="data-mono mr-3 text-[var(--brass)]">4.</span> Use Gemini to turn the best leads into outreach plans.</li>
           </ol>
         </section>
 
         <section className="rule-section">
           <div className="mb-6 flex items-end justify-between gap-3">
-            <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Top opportunities right now</h2>
+            <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Top leads right now</h2>
             <a href="/api/opportunities?refresh=1" className="data-mono text-[var(--brass)] hover:opacity-80">
               refresh feed
             </a>

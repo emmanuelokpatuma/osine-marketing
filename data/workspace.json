@@ -22,7 +22,7 @@
   "competitors": [],
   "monitorConfig": {
     "refreshSeconds": 60,
-    "minOpportunityScore": 45,
+    "minOpportunityScore": 35,
     "regions": [
       "GB"
     ]

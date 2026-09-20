@@ -20,7 +20,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   competitors: [],
   monitorConfig: {
     refreshSeconds: 60,
-    minOpportunityScore: 45,
+    minOpportunityScore: 35,
     regions: ["GB"],
   },
   leadGenConfig: {
@@ -43,7 +43,7 @@ function normalizeWorkspace(input: Workspace): Workspace {
     competitors: input.competitors ?? [],
     monitorConfig: {
       refreshSeconds: input.monitorConfig?.refreshSeconds ?? 60,
-      minOpportunityScore: input.monitorConfig?.minOpportunityScore ?? 45,
+      minOpportunityScore: input.monitorConfig?.minOpportunityScore ?? 35,
       regions: input.monitorConfig?.regions ?? ["GB"],
     },
     leadGenConfig: {
