@@ -100,27 +100,38 @@ export default async function Home() {
     .map(([sector, count]) => ({ sector, count, ...sectorFocusFor(sector) }));
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
-      <aside className="data-mono lg:sticky lg:top-10 lg:h-fit">
-        <div className="kicker">Market snapshot</div>
-        <div className="mt-4 space-y-2 text-[var(--muted)]">
-          <div>scan focus: {workspace.monitorConfig.regions.join(", ")}</div>
-          <div>signals scanned: {result.signals.length}</div>
-          <div>lead matches: {result.opportunities.length}</div>
-          <div>active sources: {liveCount}/{sources.length}</div>
-          <div>refresh cycle: every {workspace.monitorConfig.refreshSeconds}s</div>
-          <div>updated: {new Date(result.generatedAt).toISOString()}</div>
-        </div>
+    <div className="relative grid gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
+      <div aria-hidden className="page-glow page-glow-left" />
+      <div aria-hidden className="page-glow page-glow-right" />
 
-        <div className="mt-10 border-t border-[var(--rule)] pt-5 text-[var(--signal)]">
-          live market scan: active
+      <aside className="data-mono lg:sticky lg:top-10 lg:h-fit">
+        <div className="premium-panel p-5">
+          <div className="kicker uppercase tracking-[0.18em] text-[11px]">Market snapshot</div>
+          <div className="mt-4 space-y-2 text-[var(--muted)]">
+            <div>scan focus: {workspace.monitorConfig.regions.join(", ")}</div>
+            <div>signals scanned: {result.signals.length}</div>
+            <div>lead matches: {result.opportunities.length}</div>
+            <div>active sources: {liveCount}/{sources.length}</div>
+            <div>refresh cycle: every {workspace.monitorConfig.refreshSeconds}s</div>
+            <div>updated: {new Date(result.generatedAt).toISOString()}</div>
+          </div>
+
+          <div className="mt-10 border-t border-[var(--rule)] pt-5 text-[var(--signal)]">
+            live market scan: active
+          </div>
         </div>
       </aside>
 
-      <div>
+      <div className="space-y-12">
         <section className="relative overflow-hidden pb-12">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
             <div className="relative overflow-hidden">
+              <div className="inline-flex flex-wrap gap-2">
+                <span className="trust-chip">compliance-aware</span>
+                <span className="trust-chip">sector-focused</span>
+                <span className="trust-chip">crm-ready</span>
+              </div>
+
               <div className="hero-map" aria-hidden>
                 <svg viewBox="0 0 1200 380" className="h-full w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M44 202C112 160 189 148 262 167C318 181 362 175 415 149C473 120 540 115 604 131C651 143 698 169 742 171C804 173 856 136 914 133C972 130 1038 160 1156 205" stroke="var(--brass)" strokeOpacity="0.45" />
@@ -131,10 +142,10 @@ export default async function Home() {
               </div>
 
               <p className="kicker">Public-source intelligence for finding buyers</p>
-              <h1 className="mt-4 max-w-[18ch] text-[46px] leading-[1.05] tracking-[-0.02em] text-[var(--paper)] md:text-[72px]">
+              <h1 className="mt-4 max-w-[18ch] text-[46px] leading-[1.02] tracking-[-0.03em] text-[var(--paper)] md:text-[78px]">
                 Turn public data into leads you can act on.
               </h1>
-              <p className="mt-7 max-w-[68ch] text-base leading-[1.6] text-[var(--muted)]">
+              <p className="section-lede mt-7 max-w-[68ch] text-base leading-[1.6] text-[var(--muted)]">
                 Global Opportunity Radar watches public sources for signs that a business may be ready to buy, expand, hire, or respond to market change. It turns those signals into ranked leads, clear next steps, and compliant outreach guidance.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -150,8 +161,8 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-5">
-              <div className="kicker mb-3">All-seeing eye</div>
+            <div className="premium-panel p-5">
+              <div className="kicker mb-3 uppercase tracking-[0.18em] text-[11px]">All-seeing eye</div>
               <div className="relative overflow-hidden border border-[var(--rule)] bg-[rgba(237,234,224,0.02)] p-4">
                 <svg viewBox="0 0 420 220" className="h-auto w-full" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                   <circle cx="210" cy="110" r="84" stroke="var(--brass)" strokeOpacity="0.45" />
@@ -186,7 +197,7 @@ export default async function Home() {
 
               <div className="mt-4 grid gap-2 text-sm text-[var(--muted)]">
                 {Object.entries(signalTypeCounts).map(([type, count]) => (
-                  <div key={type} className="flex items-center justify-between border border-[var(--rule)] bg-[rgba(16,19,24,0.45)] px-3 py-2">
+                  <div key={type} className="metric-row flex items-center justify-between border border-[var(--rule)] bg-[rgba(16,19,24,0.45)] px-3 py-2">
                     <span className="uppercase tracking-[0.14em] text-[11px]">{type.replace("_", " ")}</span>
                     <span className="text-[var(--paper)]">{count}</span>
                   </div>
@@ -216,27 +227,27 @@ export default async function Home() {
         <section className="rule-section">
           <h2 className="text-[34px] leading-[1.15] md:text-[38px]">What it tracks</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+            <div className="sector-card p-4">
               <div className="text-[var(--paper)]">Government procurement and tenders</div>
               <p className="mt-2 text-sm text-[var(--muted)]">See organizations buying, replacing, or expanding services.</p>
             </div>
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+            <div className="sector-card p-4">
               <div className="text-[var(--paper)]">Company registry and filing changes</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Watch director changes, filings, and ownership signals.</p>
             </div>
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+            <div className="sector-card p-4">
               <div className="text-[var(--paper)]">Hiring velocity and market demand</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Catch budget growth and internal change before the market notices.</p>
             </div>
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+            <div className="sector-card p-4">
               <div className="text-[var(--paper)]">Policy and regulatory movement</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Track fresh rules, consultations, and government notices.</p>
             </div>
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+            <div className="sector-card p-4">
               <div className="text-[var(--paper)]">Local planning and infrastructure signals</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Identify construction, expansion, and regional spending.</p>
             </div>
-            <div className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+            <div className="sector-card p-4">
               <div className="text-[var(--paper)]">News and narrative momentum</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Spot moments when the story is moving and timing matters.</p>
             </div>
@@ -258,7 +269,7 @@ export default async function Home() {
 
           <div className="mt-6 grid gap-3 xl:grid-cols-2">
             {sectorCards.map((item) => (
-              <div key={item.sector} className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-5">
+              <div key={item.sector} className="sector-card p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-[var(--paper)]">{item.sector}</div>
@@ -324,7 +335,7 @@ export default async function Home() {
           <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Latest signals</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {topSignals.map((signal) => (
-              <div key={signal.id} className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-4">
+              <div key={signal.id} className="sector-card p-4">
                 <div className="data-mono text-[var(--brass)]">{signal.source}</div>
                 <div className="mt-3 text-[var(--paper)]">{signal.title}</div>
                 <p className="mt-2 text-sm text-[var(--muted)]">{signal.summary}</p>
