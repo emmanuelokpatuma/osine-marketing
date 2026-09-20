@@ -4,6 +4,76 @@ import { getPipeline, getWorkspace } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
+type SectorFocus = {
+  focus: string;
+  buyer: string;
+  motivation: string;
+  signals: string[];
+};
+
+const SECTOR_FOCUS: Record<string, SectorFocus> = {
+  "public sector": {
+    focus: "Procurement teams, transformation leads, and digital service owners",
+    buyer: "bidding for modernization, security, and delivery capacity",
+    motivation: "Spending windows, framework renewals, and service digitization create urgent buying intent.",
+    signals: ["tenders", "frameworks", "IT refresh", "delivery backlog"],
+  },
+  "financial services": {
+    focus: "CTOs, ops leaders, platform teams, and risk/compliance owners",
+    buyer: "reducing risk while speeding up platform delivery",
+    motivation: "Hiring, compliance pressure, and platform upgrades usually signal active budgets.",
+    signals: ["security", "platform engineering", "governance", "automation"],
+  },
+  retail: {
+    focus: "E-commerce directors, CIOs, and store operations leaders",
+    buyer: "replatforming for growth, resilience, and conversion",
+    motivation: "Replatforming, checkout changes, and logistics pressure often trigger fast decisions.",
+    signals: ["replatform", "checkout", "supply chain", "customer experience"],
+  },
+  construction: {
+    focus: "Developers, asset managers, and facilities buyers",
+    buyer: "unlocking sites, delivery partners, and operational support",
+    motivation: "Planning approvals and development notices create early demand for services.",
+    signals: ["planning", "warehouse", "site delivery", "infrastructure"],
+  },
+  healthcare: {
+    focus: "IT, estates, and compliance teams inside trusts and care providers",
+    buyer: "upgrading security, reliability, and patient-facing operations",
+    motivation: "Security refreshes and regulated service changes tend to move quickly once approved.",
+    signals: ["security", "compliance", "resilience", "workflow automation"],
+  },
+  fintech: {
+    focus: "Product, platform, and compliance leaders",
+    buyer: "shipping safely while staying ahead of regulation",
+    motivation: "Hiring spikes and platform hardening reveal urgency to buy support now.",
+    signals: ["devsecops", "IAM", "payments", "fraud"],
+  },
+  cybersecurity: {
+    focus: "CISOs, security operations, and governance teams",
+    buyer: "closing gaps and replacing point tools quickly",
+    motivation: "Security incidents, hiring, and new regulations create immediate demand.",
+    signals: ["SOC", "SIEM", "incident response", "compliance"],
+  },
+  "it services": {
+    focus: "Delivery leaders and platform heads",
+    buyer: "buying capacity, tooling, and specialist support",
+    motivation: "IT providers often need partners when delivery or client demand grows.",
+    signals: ["cloud migration", "platform engineering", "devsecops", "support"],
+  },
+};
+
+function sectorFocusFor(sector: string): SectorFocus {
+  const key = sector.trim().toLowerCase();
+  return (
+    SECTOR_FOCUS[key] ?? {
+      focus: "Commercial leaders and buyers active in this market",
+      buyer: "solving a live operational or growth problem",
+      motivation: "Public signals suggest there is budget, change, or timing pressure.",
+      signals: ["growth", "hiring", "procurement", "compliance"],
+    }
+  );
+}
+
 export default async function Home() {
   const workspace = await getWorkspace();
   const sources = catalogForRegions(workspace.monitorConfig.regions);
@@ -20,6 +90,15 @@ export default async function Home() {
   }, {});
   const topOpportunity = result.opportunities[0];
   const topSignals = result.signals.slice(0, 4);
+  const sectorCards = Object.entries(
+    result.opportunities.reduce<Record<string, number>>((acc, opportunity) => {
+      acc[opportunity.sector] = (acc[opportunity.sector] ?? 0) + 1;
+      return acc;
+    }, {}),
+  )
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([sector, count]) => ({ sector, count, ...sectorFocusFor(sector) }));
 
   return (
     <div className="grid gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
@@ -162,6 +241,44 @@ export default async function Home() {
               <div className="text-[var(--paper)]">News and narrative momentum</div>
               <p className="mt-2 text-sm text-[var(--muted)]">Spot moments when the story is moving and timing matters.</p>
             </div>
+          </div>
+        </section>
+
+        <section className="rule-section">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Where motivated buyers are focused</h2>
+              <p className="mt-3 max-w-[68ch] text-sm text-[var(--muted)]">
+                These are the sectors with the clearest buying signals right now. Each card shows who is likely to buy, why they are motivated, and what to focus on first.
+              </p>
+            </div>
+            <a href="/settings" className="instrument-button instrument-button-quiet">
+              refine sectors
+            </a>
+          </div>
+
+          <div className="mt-6 grid gap-3 xl:grid-cols-2">
+            {sectorCards.map((item) => (
+              <div key={item.sector} className="border border-[var(--rule)] bg-[rgba(237,234,224,0.03)] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-[var(--paper)]">{item.sector}</div>
+                    <div className="mt-1 text-sm text-[var(--muted)]">{item.count} live lead{item.count === 1 ? "" : "s"}</div>
+                  </div>
+                  <div className="data-mono text-[var(--brass)]">focus</div>
+                </div>
+                <p className="mt-4 text-sm text-[var(--paper)]">{item.focus}</p>
+                <p className="mt-2 text-sm text-[var(--muted)]">Motivated buyers are usually {item.buyer}.</p>
+                <p className="mt-2 text-sm text-[var(--muted)]">Why they move now: {item.motivation}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {item.signals.map((signal) => (
+                    <span key={signal} className="rounded-full border border-[var(--rule)] px-3 py-1 text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
+                      {signal}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
