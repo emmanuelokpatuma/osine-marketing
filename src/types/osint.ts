@@ -11,7 +11,24 @@ export type SourceName =
   | "adzuna"
   | "companies_house"
   | "news_rss"
-  | "planning_portal";
+  | "planning_portal"
+  | "govuk_news_rss"
+  | "bbc_news_rss"
+  | "spaceflight_news"
+  | "federal_register"
+  | "world_bank"
+  | "openalex"
+  | "uk_bank_holidays"
+  | "usa_spending"
+  | "uk_parliament"
+  | "uk_ons"
+  | "police_uk"
+  | "uk_land_registry"
+  | "uk_food_standards"
+  | "open_sanctions"
+  | "open_corporates"
+  | "openregistry"
+  | "registrum";
 
 export type OpportunityProfile = {
   audience: string;

@@ -31,6 +31,102 @@ function normalizeSignal(entity: TrackedEntity, signal: Omit<RawSignal, "id">, s
   };
 }
 
+function decodeEntities(value: string): string {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+function stripTags(value: string): string {
+  return decodeEntities(value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+}
+
+function pickPublishedDate(item: string): string {
+  const candidates = [
+    item.match(/<pubDate>(.*?)<\/pubDate>/i)?.[1],
+    item.match(/<published>(.*?)<\/published>/i)?.[1],
+    item.match(/<updated>(.*?)<\/updated>/i)?.[1],
+    item.match(/<dc:date>(.*?)<\/dc:date>/i)?.[1],
+  ].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const time = Date.parse(candidate);
+    if (!Number.isNaN(time)) return new Date(time).toISOString();
+  }
+
+  return new Date().toISOString();
+}
+
+function parseRssItems(
+  xml: string,
+  entity: TrackedEntity,
+  source: SourceName,
+  signalType: RawSignal["signalType"],
+  sectorFallback: string,
+  titleFallback = "Public feed mention",
+  limit = 8,
+): RawSignal[] {
+  const items = [...xml.matchAll(/<item[\s\S]*?<\/item>/gi)].slice(0, limit);
+  return items.map((match, index) => {
+    const item = match[0];
+    const title = stripTags(item.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? titleFallback);
+    const link = decodeEntities(item.match(/<link>([\s\S]*?)<\/link>/i)?.[1] ?? "https://example.com");
+    const summary = stripTags(
+      item.match(/<description>([\s\S]*?)<\/description>/i)?.[1] ?? item.match(/<summary>([\s\S]*?)<\/summary>/i)?.[1] ?? "Public RSS feed mention.",
+    );
+
+    return normalizeSignal(
+      entity,
+      {
+        source,
+        signalType,
+        title,
+        summary: summary.slice(0, 260),
+        sourceUrl: link,
+        publishedAt: pickPublishedDate(item),
+        companyName: entity.name,
+        location: entity.countries.includes("GB") ? "United Kingdom" : entity.countries[0] ?? "Global",
+        sector: entity.sector ?? sectorFallback,
+        confidence: 0.66,
+        tags: [source, "rss", "public-feed"],
+      },
+      `${index + 1}`,
+    );
+  });
+}
+
+function synthesizeFallbackSignals(
+  entity: TrackedEntity,
+  source: SourceName,
+  signalType: RawSignal["signalType"],
+  label: string,
+  sectorFallback: string,
+  count = 1,
+): RawSignal[] {
+  return Array.from({ length: count }, (_, index) =>
+    normalizeSignal(
+      entity,
+      {
+        source,
+        signalType,
+        title: `${label} signal for ${entity.name}`,
+        summary: `Fallback signal generated while the ${label} feed is unreachable. Review the live source for current public updates.`,
+        sourceUrl: "https://github.com/public-apis/public-apis",
+        publishedAt: new Date(Date.now() - (index + 1) * 60 * 60 * 1000).toISOString(),
+        companyName: entity.name,
+        location: entity.countries.includes("GB") ? "United Kingdom" : entity.countries[0] ?? "Global",
+        sector: entity.sector ?? sectorFallback,
+        confidence: 0.35,
+        tags: [source, "fallback"],
+      },
+      `fallback-${index + 1}`,
+    ),
+  );
+}
+
 async function fetchContractsFinder(entity: TrackedEntity): Promise<RawSignal[]> {
   const keywords = encodeURIComponent(buildDiscoveryQuery(entity));
   const url = `https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?keyword=${keywords}&order=desc&size=8`;
@@ -205,6 +301,202 @@ async function fetchNewsRss(entity: TrackedEntity): Promise<RawSignal[]> {
   });
 }
 
+async function fetchGovUkNews(entity: TrackedEntity): Promise<RawSignal[]> {
+  const response = await fetch("https://www.gov.uk/search/news-and-communications.atom", { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const xml = await response.text();
+  return parseRssItems(xml, entity, "govuk_news_rss", "news", "Policy", "GOV.UK update", 8);
+}
+
+async function fetchBbcNews(entity: TrackedEntity): Promise<RawSignal[]> {
+  const response = await fetch("https://feeds.bbci.co.uk/news/rss.xml", { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const xml = await response.text();
+  return parseRssItems(xml, entity, "bbc_news_rss", "news", "News", "BBC News", 8);
+}
+
+async function fetchSpaceflightNews(entity: TrackedEntity): Promise<RawSignal[]> {
+  const response = await fetch("https://api.spaceflightnewsapi.net/v4/articles/?limit=8", { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = (await response.json()) as {
+    results?: Array<{
+      id: number;
+      title: string;
+      summary?: string;
+      url: string;
+      published_at: string;
+      news_site?: string;
+      updated_at?: string;
+    }>;
+  };
+
+  return (data.results ?? []).map((article, index) =>
+    normalizeSignal(
+      entity,
+      {
+        source: "spaceflight_news",
+        signalType: "news",
+        title: article.title,
+        summary: (article.summary ?? "Space industry news signal.").slice(0, 260),
+        sourceUrl: article.url,
+        publishedAt: article.published_at ?? article.updated_at ?? new Date().toISOString(),
+        companyName: article.news_site ?? "Spaceflight News",
+        location: "Global",
+        sector: entity.sector ?? "Aerospace",
+        confidence: 0.7,
+        tags: ["news", "space", "industry"],
+      },
+      `${article.id ?? index + 1}`,
+    ),
+  );
+}
+
+async function fetchFederalRegister(entity: TrackedEntity): Promise<RawSignal[]> {
+  const response = await fetch("https://www.federalregister.gov/api/v1/documents.json?per_page=8&order=newest", {
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = (await response.json()) as {
+    results?: Array<{
+      document_number: string;
+      title: string;
+      abstract?: string;
+      html_url: string;
+      publication_date?: string;
+      agencies?: Array<{ name?: string }>;
+    }>;
+  };
+
+  return (data.results ?? []).map((doc) =>
+    normalizeSignal(
+      entity,
+      {
+        source: "federal_register",
+        signalType: "news",
+        title: doc.title,
+        summary: (doc.abstract ?? "Federal Register notice.").slice(0, 260),
+        sourceUrl: doc.html_url,
+        publishedAt: doc.publication_date ? new Date(doc.publication_date).toISOString() : new Date().toISOString(),
+        companyName: doc.agencies?.[0]?.name ?? "Federal Register",
+        location: "United States",
+        sector: entity.sector ?? "Public Sector",
+        confidence: 0.74,
+        tags: ["regulatory", "policy", "notice"],
+      },
+      doc.document_number,
+    ),
+  );
+}
+
+async function fetchWorldBank(entity: TrackedEntity): Promise<RawSignal[]> {
+  const country = entity.countries.includes("GB") ? "GBR" : entity.countries.includes("US") ? "USA" : "GBR";
+  const response = await fetch(
+    `https://api.worldbank.org/v2/country/${country}/indicator/NY.GDP.MKTP.CD?format=json&per_page=5`,
+    { cache: "no-store" },
+  );
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = (await response.json()) as Array<
+    | unknown
+    | {
+        value?: number;
+        date?: string;
+        country?: { value?: string };
+      }
+  >;
+  const entries = Array.isArray(data) ? (data[1] as Array<{ value?: number; date?: string; country?: { value?: string } }>) : [];
+  const latest = entries.find((item) => item?.value != null) ?? entries[0];
+  if (!latest) return [];
+
+  return [
+    normalizeSignal(
+      entity,
+      {
+        source: "world_bank",
+        signalType: "news",
+        title: `World Bank macro data for ${latest.country?.value ?? country}`,
+        summary: `Latest GDP series point for ${latest.country?.value ?? country}.`,
+        sourceUrl: "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392",
+        publishedAt: latest.date ? new Date(`${latest.date}-01-01T00:00:00.000Z`).toISOString() : new Date().toISOString(),
+        companyName: latest.country?.value ?? "World Bank",
+        location: latest.country?.value ?? country,
+        sector: entity.sector ?? "Macro",
+        confidence: 0.58,
+        tags: ["macro", "worldbank", "context"],
+      },
+      `${country}-${latest.date ?? "latest"}`,
+    ),
+  ];
+}
+
+async function fetchOpenAlex(entity: TrackedEntity): Promise<RawSignal[]> {
+  const query = encodeURIComponent(buildDiscoveryQuery(entity));
+  const response = await fetch(`https://api.openalex.org/works?search=${query}&per-page=5&sort=publication_date:desc`, {
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = (await response.json()) as {
+    results?: Array<{
+      id: string;
+      title: string;
+      publication_date?: string;
+      primary_location?: { source?: { display_name?: string } };
+      cited_by_count?: number;
+      type?: string;
+    }>;
+  };
+
+  return (data.results ?? []).map((work) =>
+    normalizeSignal(
+      entity,
+      {
+        source: "openalex",
+        signalType: "news",
+        title: work.title,
+        summary: `Research signal${work.cited_by_count != null ? ` with ${work.cited_by_count} citations` : ""}.`,
+        sourceUrl: work.id,
+        publishedAt: work.publication_date ? new Date(`${work.publication_date}T00:00:00.000Z`).toISOString() : new Date().toISOString(),
+        companyName: work.primary_location?.source?.display_name ?? "OpenAlex",
+        location: "Global",
+        sector: entity.sector ?? "Research",
+        confidence: 0.6,
+        tags: ["research", "openalex", work.type ?? "work"],
+      },
+      work.id,
+    ),
+  );
+}
+
+async function fetchBankHolidays(entity: TrackedEntity): Promise<RawSignal[]> {
+  const response = await fetch("https://www.gov.uk/bank-holidays.json", { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = (await response.json()) as {
+    [region: string]: { events?: Array<{ title?: string; date?: string }> };
+  };
+  const firstRegion = Object.values(data)[0];
+  const firstEvent = firstRegion?.events?.[0];
+  if (!firstEvent) return [];
+
+  return [
+    normalizeSignal(
+      entity,
+      {
+        source: "uk_bank_holidays",
+        signalType: "planning",
+        title: `Upcoming bank holiday: ${firstEvent.title ?? "UK holiday"}`,
+        summary: "Public holiday timing signal for outreach scheduling and operational planning.",
+        sourceUrl: "https://www.gov.uk/bank-holidays.json",
+        publishedAt: firstEvent.date ? new Date(`${firstEvent.date}T00:00:00.000Z`).toISOString() : new Date().toISOString(),
+        companyName: "UK Government",
+        location: "United Kingdom",
+        sector: entity.sector ?? "Planning",
+        confidence: 0.55,
+        tags: ["calendar", "holiday", "timing"],
+      },
+      firstEvent.date ?? "next-holiday",
+    ),
+  ];
+}
+
 async function fetchPlanningSignals(entity: TrackedEntity): Promise<RawSignal[]> {
   const fallback = sampleSignalsBySource("planning_portal", 4).map((signal, index) => ({
     ...signal,
@@ -257,6 +549,55 @@ export const CONNECTOR_REGISTRY: Connector[] = [
     roles: ["brand", "competitor"],
     fetchSignals: fetchNewsRss,
   },
+  {
+    source: "govuk_news_rss",
+    label: "GOV.UK News RSS",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchGovUkNews,
+  },
+  {
+    source: "bbc_news_rss",
+    label: "BBC News RSS",
+    scope: "global",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchBbcNews,
+  },
+  {
+    source: "spaceflight_news",
+    label: "Spaceflight News",
+    scope: "global",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchSpaceflightNews,
+  },
+  {
+    source: "federal_register",
+    label: "Federal Register",
+    scope: "US",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchFederalRegister,
+  },
+  {
+    source: "world_bank",
+    label: "World Bank",
+    scope: "global",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchWorldBank,
+  },
+  {
+    source: "openalex",
+    label: "OpenAlex",
+    scope: "global",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchOpenAlex,
+  },
+  {
+    source: "uk_bank_holidays",
+    label: "UK Bank Holidays",
+    scope: "GB",
+    roles: ["brand", "competitor"],
+    fetchSignals: fetchBankHolidays,
+  },
 ];
 
 export function listLiveConnectors(regions: string[]): LiveConnectorInfo[] {
@@ -289,15 +630,19 @@ export async function collectSignalsForEntity(
     eligible.map(async (connector) => {
       try {
         const records = await connector.fetchSignals(entity);
-        if (records.length === 0 && connector.source === "find_a_tender") {
+        if (records.length === 0) {
           const fallback = sampleSignalsBySource(connector.source, 2);
+          const signals =
+            fallback.length > 0
+              ? fallback
+              : synthesizeFallbackSignals(entity, connector.source, connector.source === "find_a_tender" ? "tender" : "news", connector.label, entity.sector ?? "General", 2);
           return {
-            signals: fallback,
+            signals,
             health: {
               source: connector.source,
               status: "fallback" as const,
-              message: "Using curated fallback while connector endpoint is pending.",
-              records: fallback.length,
+              message: `No records returned from ${connector.label}; using fallback signals.`,
+              records: signals.length,
             },
           };
         }
@@ -311,11 +656,15 @@ export async function collectSignalsForEntity(
           },
         };
       } catch (error) {
-        const fallback = sampleSignalsBySource(connector.source, 3).map((signal, idx) => ({
+        const sampleFallback = sampleSignalsBySource(connector.source, 3).map((signal, idx) => ({
           ...signal,
           id: `${connector.source}-fallback-${entity.id}-${idx + 1}`,
           companyName: signal.companyName || entity.name,
         }));
+        const fallback =
+          sampleFallback.length > 0
+            ? sampleFallback
+            : synthesizeFallbackSignals(entity, connector.source, connector.source === "find_a_tender" ? "tender" : "news", connector.label, entity.sector ?? "General", 3);
         return {
           signals: fallback,
           health: {

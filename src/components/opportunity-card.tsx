@@ -20,6 +20,13 @@ function sourceLabel(source: string): string {
 }
 
 export function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
+  const publishedAtFormatter = new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
   return (
     <article className="rounded-2xl border border-[var(--color-rule)] bg-white/85 p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -61,7 +68,7 @@ export function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
             >
               <div className="font-medium">{item.title}</div>
               <div className="mt-1 text-xs text-[var(--color-muted)]">
-                {sourceLabel(item.source)} · {new Date(item.publishedAt).toLocaleDateString()}
+                {sourceLabel(item.source)} · {publishedAtFormatter.format(new Date(item.publishedAt))}
               </div>
             </a>
           ))}
