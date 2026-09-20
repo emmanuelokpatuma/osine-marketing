@@ -54,6 +54,104 @@ export function LeadGenerator({
   defaultCountry?: string;
 }) {
   const countryChoices = useMemo(() => ["All countries", ...countries], [countries]);
+  const leadModes = useMemo(
+    () => [
+      {
+        title: "Angel investors",
+        description: "Founders, investors, portfolio activity, and funding signals.",
+        prompt:
+          "Find the strongest opportunities linked to angel investors, startup funding, and fast-growing companies. Include public signals, likely buyer intent, and a compliant outreach plan.",
+      },
+      {
+        title: "SME grants",
+        description: "Government and company grants for small and medium businesses.",
+        prompt:
+          "Find SME grant opportunities from government, local authorities, public agencies, and companies. Return all matching opportunities, deadlines, eligibility notes, and who should apply.",
+      },
+      {
+        title: "Energy grants",
+        description: "Funding and grant opportunities across energy, net zero, and utilities.",
+        prompt:
+          "Find energy-sector grants, funding calls, pilot programmes, and public opportunities. Include who is eligible, deadlines, likely buyers, and outreach or application next steps.",
+      },
+      {
+        title: "Research grants",
+        description: "University, R&D, innovation, and research funding leads.",
+        prompt:
+          "Find research grants, R&D funding, university opportunities, and innovation calls. Include public signals, eligibility, deadlines, and what each grant is likely to support.",
+      },
+      {
+        title: "Events and conferences",
+        description: "Sector events, trade shows, sponsors, venues, and speaker pages.",
+        prompt:
+          "Find events and conferences where buying opportunities are likely, including sector events, local conferences, trade shows, and examples like Leeds Digital Conference. Include leads, attendees, sponsors, and next actions.",
+      },
+      {
+        title: "Property and real estate",
+        description: "Land, buildings, planning, brokers, landlords, and occupiers.",
+        prompt:
+          "Find real estate and property opportunities in the selected country. Include planning, occupancy, site expansion, brokers, landlords, and service buyers.",
+      },
+      {
+        title: "Healthcare",
+        description: "Trusts, clinics, providers, compliance, and procurement.",
+        prompt:
+          "Find healthcare opportunities that show buying intent from procurement, hiring, compliance, and operational change. Return all matching opportunities and the best leads.",
+      },
+      {
+        title: "Ad and demand alerts",
+        description: "Public ad signals, campaign pages, and visible market intent.",
+        prompt:
+          "Find public signs of advertising or campaign activity on Google, YouTube, and open ad or transparency sources. Turn those into leads and explain what each one is likely buying.",
+      },
+      {
+        title: "B2B sector leads",
+        description: "General-purpose lead generation across all sectors.",
+        prompt:
+          "Find the most motivated buyers across all sectors in the selected country, prioritize the strongest opportunities, and explain what each lead needs.",
+      },
+    ],
+    [],
+  );
+
+  const signalWatchlist = useMemo(
+    () => [
+      {
+        title: "Google business / maps",
+        description: "Find businesses by address, category, and geo location.",
+      },
+      {
+        title: "Reddit / community chatter",
+        description: "Track public subreddit discussions and community signals.",
+      },
+      {
+        title: "Events / conferences",
+        description: "Watch speaker lists, sponsors, schedules, and venue announcements.",
+      },
+      {
+        title: "Property / location",
+        description: "Use addresses, geolocation, planning, and occupancy signals.",
+      },
+      {
+        title: "Funding / investors",
+        description: "Surface companies that just raised, are hiring, or are scaling fast.",
+      },
+      {
+        title: "Grant portals",
+        description: "Monitor government and company grant listings for SMEs and sector funding.",
+      },
+      {
+        title: "Research funding",
+        description: "Track research councils, universities, innovation calls, and R&D awards.",
+      },
+      {
+        title: "Ad signals",
+        description: "Use public ad or transparency sources where available; Google/YouTube ad APIs require access.",
+      },
+    ],
+    [],
+  );
+
   const [prompt, setPrompt] = useState(
     "Find the strongest opportunities for buyers ready to move now. Group the results by the selected country and explain what each lead needs.",
   );
@@ -91,9 +189,9 @@ export function LeadGenerator({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="kicker">Prompt chat</p>
-          <h2 className="mt-3 text-[34px] leading-[1.15] md:text-[38px]">Tell Gemini what you want, then generate the full lead set</h2>
+          <h2 className="mt-3 text-[34px] leading-[1.15] md:text-[38px]">Build a full lead generator from one prompt</h2>
           <p className="mt-3 max-w-[70ch] text-sm text-[var(--muted)]">
-            Describe the buyer, sector, urgency, or use case. The generator returns every matching opportunity in the selected country, the filtered leads, and a Gemini brief you can use immediately.
+            Describe the buyer, sector, urgency, event, grant, or market signal. The generator returns every matching opportunity in the selected country, the filtered leads, and a Gemini brief you can use immediately.
           </p>
         </div>
         <button onClick={generate} className="instrument-button instrument-button-primary" disabled={loading}>
@@ -103,6 +201,20 @@ export function LeadGenerator({
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
         <div className="premium-panel p-5">
+          <div className="flex flex-wrap gap-2">
+            {leadModes.map((profile) => (
+              <button
+                key={profile.title}
+                type="button"
+                onClick={() => setPrompt(profile.prompt)}
+                className="trust-chip text-left transition hover:opacity-90"
+                title={profile.description}
+              >
+                {profile.title}
+              </button>
+            ))}
+          </div>
+
           <label className="block text-sm text-[var(--muted)]">
             What do you want Gemini to find?
             <textarea
@@ -210,7 +322,22 @@ export function LeadGenerator({
               <span className="text-[var(--paper)]">Tip:</span> ask for sector-specific buyers, urgency, or campaign ideas.
             </div>
             <div className="border-t border-[var(--rule)] pt-3">
-              <span className="text-[var(--paper)]">Example:</span> “Show me the most motivated public sector buyers in the UK and draft a compliant outreach plan.”
+              <span className="text-[var(--paper)]">Example:</span> “Show me angel investors and SME grant opportunities in the UK, then draft a compliant outreach plan.”
+            </div>
+            <div className="border-t border-[var(--rule)] pt-3">
+              <span className="text-[var(--paper)]">Open watch sources:</span> Google News, Reddit, event pages, public company records, planning, procurement, grant portals, and research databases.
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="kicker uppercase tracking-[0.16em] text-[11px]">Watchlist</div>
+            <div className="mt-3 space-y-2">
+              {signalWatchlist.map((item) => (
+                <div key={item.title} className="sector-card p-3">
+                  <div className="text-sm text-[var(--paper)]">{item.title}</div>
+                  <div className="mt-1 text-xs text-[var(--muted)]">{item.description}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
