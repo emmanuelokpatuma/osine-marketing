@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams?: { sectors?: string };
+  searchParams?: { sectors?: string; action?: string };
 }) {
   const workspace = await getWorkspace();
   const pipeline = (await getPipeline()) ?? (await runPipeline());
@@ -16,6 +16,7 @@ export default async function LeadsPage({
     ?.split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+  const selectedAction = searchParams?.action ?? "summary";
   const rows = buildLeadRows(workspace, pipeline.opportunities, { sectors });
   const insight = await getLeadInsight(workspace, rows);
 
@@ -34,6 +35,49 @@ export default async function LeadsPage({
     "Best regards,",
     workspace.brand?.name ?? "Global Opportunity Radar",
   ].join("\n");
+
+  const geminiPlaybook = [
+    { slug: "summary", label: "Summarize the lead", detail: "One-line plain-English brief for the selected opportunity." },
+    { slug: "sector", label: "Explain the sector", detail: "Translate the sector into buyer language." },
+    { slug: "why-now", label: "Explain why now", detail: "Show why this lead is relevant at this moment." },
+    { slug: "proof", label: "Rank proof points", detail: "Surface the strongest evidence first." },
+    { slug: "channel", label: "Suggest channel", detail: "Pick the best outreach channel from the available options." },
+    { slug: "email-opener", label: "Draft email opener", detail: "Write the first two lines of a short email." },
+    { slug: "linkedin-intro", label: "Draft LinkedIn intro", detail: "Write a concise LinkedIn connection note." },
+    { slug: "sms", label: "Draft SMS version", detail: "Condense the message to a short text." },
+    { slug: "follow-up", label: "Draft follow-up", detail: "Write a polite second-touch message." },
+    { slug: "subject", label: "Write subject line", detail: "Generate a low-friction subject line." },
+    { slug: "call-script", label: "Write call script", detail: "Create a short opening for a call." },
+    { slug: "questions", label: "Discovery questions", detail: "Suggest a few useful questions to ask." },
+    { slug: "cta", label: "Suggest CTA", detail: "Recommend a soft next step or call to action." },
+    { slug: "crm-next", label: "Next CRM action", detail: "Recommend what to do next in the CRM." },
+    { slug: "industry-group", label: "Group by industry", detail: "Cluster leads by industry or sector." },
+    { slug: "geo-group", label: "Group by geography", detail: "Cluster leads by city, region, or country." },
+    { slug: "urgency-group", label: "Group by urgency", detail: "Rank leads by how fast to act." },
+    { slug: "weak-leads", label: "Flag weak leads", detail: "Call out low-confidence or weak-fit leads." },
+    { slug: "compare", label: "Compare leads", detail: "Compare two similar leads side by side." },
+    { slug: "real-estate", label: "Real-estate angle", detail: "Shape the lead for property or local market use." },
+    { slug: "small-business", label: "Small-business angle", detail: "Shape the lead for local SMB outreach." },
+    { slug: "procurement", label: "Procurement angle", detail: "Frame the lead as a procurement opportunity." },
+    { slug: "hiring", label: "Hiring-intent angle", detail: "Use hiring signals to guide outreach." },
+    { slug: "policy", label: "Policy/RegTech angle", detail: "Frame the lead around policy or compliance movement." },
+    { slug: "research", label: "Research angle", detail: "Use the lead for thought leadership or research." },
+    { slug: "checklist", label: "Compliance checklist", detail: "Generate a compliant outreach checklist." },
+    { slug: "campaign", label: "Campaign brief", detail: "Create a sector-specific campaign outline." },
+    { slug: "crm-note", label: "CRM note", detail: "Create a clean note for your CRM record." },
+    { slug: "next-best", label: "Next-best action", detail: "Suggest the single best next move." },
+    { slug: "sequence", label: "3-step sequence", detail: "Draft a short outreach sequence." },
+  ] as const;
+
+  const selectedPlaybook = geminiPlaybook.find((item) => item.slug === selectedAction) ?? geminiPlaybook[0];
+
+  const bestUsePattern = [
+    "1. Pick a sector.",
+    "2. Pull the strongest public signals.",
+    "3. Ask Gemini for a summary, contact plan, and CTA.",
+    "4. Use the output to draft one compliant message.",
+    "5. Save the result to CRM and follow up only if allowed.",
+  ];
 
   return (
     <div className="space-y-10">
@@ -194,6 +238,40 @@ export default async function LeadsPage({
         <p className="mt-4 max-w-[68ch] text-[var(--muted)]">
           Use the CSV export in a CRM, email platform, or audience tool. The app stays on the compliant side by keeping first-party constraints and suppression controls in place.
         </p>
+      </section>
+
+      <section className="rule-section">
+        <p className="kicker">Gemini playbook</p>
+        <h2 className="mt-3 text-[34px] leading-[1.15] md:text-[38px]">30 clickable Gemini actions</h2>
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {geminiPlaybook.map((item, index) => {
+            const href = `/leads?action=${encodeURIComponent(item.slug)}${sectors?.length ? `&sectors=${encodeURIComponent(sectors.join(","))}` : ""}`;
+            const active = item.slug === selectedAction;
+            return (
+              <a
+                key={item.slug}
+                href={href}
+                className={`rounded-xl border p-4 transition ${active ? "border-[var(--signal)] bg-[rgba(191,166,88,0.12)]" : "border-[var(--rule)] bg-white/70 hover:bg-white"}`}
+              >
+                <div className="data-mono text-xs uppercase tracking-[0.14em] text-[var(--muted)]">0{index + 1}</div>
+                <div className="mt-2 text-sm text-[var(--paper)]">{item.label}</div>
+                <div className="mt-1 text-xs text-[var(--muted)]">{item.detail}</div>
+              </a>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-[var(--rule)] bg-[rgba(255,255,255,0.72)] p-5">
+          <h3 className="text-lg">Selected action</h3>
+          <div className="mt-2 text-sm text-[var(--paper)]">{selectedPlaybook.label}</div>
+          <div className="mt-1 text-sm text-[var(--muted)]">{selectedPlaybook.detail}</div>
+          <h3 className="mt-6 text-lg">Best use pattern</h3>
+          <ol className="mt-4 space-y-3 text-sm text-[var(--muted)]">
+            {bestUsePattern.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </div>
       </section>
     </div>
   );
