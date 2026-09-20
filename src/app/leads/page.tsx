@@ -1,7 +1,9 @@
 import { buildLeadRows } from "@/lib/leadgen";
+import { countryOptionsFromOpportunities } from "@/lib/geography";
 import { getLeadInsight } from "@/lib/lead-insight";
 import { runPipeline } from "@/lib/pipeline";
 import { getPipeline, getWorkspace } from "@/lib/store";
+import { LeadGenerator } from "@/components/lead-generator";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,7 @@ export default async function LeadsPage({
   const selectedAction = searchParams?.action ?? "summary";
   const rows = buildLeadRows(workspace, pipeline.opportunities, { sectors });
   const insight = await getLeadInsight(workspace, rows);
+  const countries = countryOptionsFromOpportunities(pipeline.opportunities);
 
   const realEstateTemplate = [
     "Hi,",
@@ -81,6 +84,8 @@ export default async function LeadsPage({
 
   return (
     <div className="space-y-10">
+      <LeadGenerator countries={countries} />
+
       <section className="rule-section">
         <p className="kicker">Lead export</p>
         <h1 className="mt-4 max-w-[18ch] text-[46px] leading-[1.05] tracking-[-0.02em] text-[var(--paper)] md:text-[72px]">

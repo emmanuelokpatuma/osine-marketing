@@ -16,6 +16,11 @@ export type LeadInsight = {
   suggestedCTA: string;
 };
 
+export type LeadInsightContext = {
+  prompt?: string;
+  country?: string;
+};
+
 const DEFAULT_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
 
 function fallbackInsight(workspace: Workspace, rows: LeadRow[]): LeadInsight {
@@ -76,7 +81,11 @@ function parseInsight(text: string): LeadInsight {
   };
 }
 
-async function generateGeminiInsight(workspace: Workspace, rows: LeadRow[]): Promise<LeadInsight> {
+async function generateGeminiInsight(
+  workspace: Workspace,
+  rows: LeadRow[],
+  context: LeadInsightContext = {},
+): Promise<LeadInsight> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return fallbackInsight(workspace, rows);
 
@@ -117,11 +126,15 @@ Rules:
 - Keep the message appropriate for the selected channel.
 `;
 
+  const userIntent = context.prompt?.trim() || "Generate a full lead brief from the selected country and current lead set.";
+
   const userPrompt = JSON.stringify(
     {
       brand: workspace.brand?.name ?? "Global Opportunity Radar",
       sectorTargets: workspace.leadGenConfig.targetSectors,
       allowedChannels: workspace.leadGenConfig.allowedChannels,
+      selectedCountry: context.country ?? "All countries",
+      userIntent,
       leads: topRows,
     },
     null,
@@ -167,10 +180,14 @@ Rules:
   }
 }
 
-export async function getLeadInsight(workspace: Workspace, rows: LeadRow[]): Promise<LeadInsight> {
+export async function getLeadInsight(
+  workspace: Workspace,
+  rows: LeadRow[],
+  context: LeadInsightContext = {},
+): Promise<LeadInsight> {
   if (rows.length === 0) {
     return fallbackInsight(workspace, rows);
   }
 
-  return generateGeminiInsight(workspace, rows);
+  return generateGeminiInsight(workspace, rows, context);
 }
