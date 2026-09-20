@@ -13,19 +13,18 @@ export default async function Home() {
   return (
     <div className="grid gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
       <aside className="data-mono lg:sticky lg:top-10 lg:h-fit">
-        <div className="kicker">Console telemetry</div>
+        <div className="kicker">Market snapshot</div>
         <div className="mt-4 space-y-2 text-[var(--muted)]">
-          <div>grid position: 54.0000 N / 2.0000 W</div>
-          <div>signals: {result.signals.length}</div>
-          <div>opportunities: {result.opportunities.length}</div>
-          <div>live sources: {liveCount}/{sources.length}</div>
-          <div>refresh: {workspace.monitorConfig.refreshSeconds}s</div>
-          <div>regions: {workspace.monitorConfig.regions.join(", ")}</div>
-          <div>timestamp: {new Date(result.generatedAt).toISOString()}</div>
+          <div>scan focus: {workspace.monitorConfig.regions.join(", ")}</div>
+          <div>signals scanned: {result.signals.length}</div>
+          <div>lead matches: {result.opportunities.length}</div>
+          <div>active sources: {liveCount}/{sources.length}</div>
+          <div>refresh cycle: every {workspace.monitorConfig.refreshSeconds}s</div>
+          <div>updated: {new Date(result.generatedAt).toISOString()}</div>
         </div>
 
         <div className="mt-10 border-t border-[var(--rule)] pt-5 text-[var(--signal)]">
-          live signal: active
+          live market scan: active
         </div>
       </aside>
 
@@ -90,6 +89,10 @@ export default async function Home() {
             </a>
           </div>
 
+          <p className="max-w-[68ch] text-sm text-[var(--muted)]">
+            These are the strongest current matches from public sources. If you want a broader list, add more sectors or regions in settings.
+          </p>
+
           <div className="border-y border-[var(--rule)]">
             {result.opportunities.slice(0, 8).map((item) => (
               <div key={`${item.companyName}-${item.lastUpdatedAt}`} className="grid gap-3 border-t border-[var(--rule)] py-4 first:border-t-0 md:grid-cols-[minmax(0,1fr)_130px]">
@@ -108,7 +111,7 @@ export default async function Home() {
         </section>
 
         <section className="rule-section">
-          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Global linework</h2>
+          <h2 className="text-[34px] leading-[1.15] md:text-[38px]">Coverage map</h2>
           <div className="mt-6 overflow-hidden border border-[var(--rule)] bg-[rgba(237,234,224,0.02)] p-4">
             <svg viewBox="0 0 960 220" className="h-auto w-full" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 166C130 90 210 90 318 129C431 170 541 160 650 114C739 76 840 80 940 144" stroke="var(--brass)" strokeWidth="1" />

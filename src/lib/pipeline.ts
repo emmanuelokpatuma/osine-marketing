@@ -40,7 +40,7 @@ function scoreSignals(signals: RawSignal[], profile: OpportunityProfile): Opport
   const grouped = new Map<string, RawSignal[]>();
 
   for (const signal of signals) {
-    const key = `${signal.companyName}::${signal.location}::${signal.sector}`;
+    const key = `${signal.companyName}::${signal.location}::${signal.sector}::${signal.signalType}`;
     const bucket = grouped.get(key);
     if (bucket) {
       bucket.push(signal);
