@@ -43,6 +43,12 @@ export async function PATCH(request: NextRequest) {
       minOpportunityScore?: number;
       regions?: string[];
     };
+    leadGenConfig?: {
+      consentRequired?: boolean;
+      firstPartyOnly?: boolean;
+      allowedChannels?: Array<"email" | "retargeting" | "crm" | "sms">;
+      suppressionList?: string[];
+    };
   };
 
   const workspace = await getWorkspace();
@@ -52,6 +58,20 @@ export async function PATCH(request: NextRequest) {
       minOpportunityScore: Math.max(0, Math.min(100, body.monitorConfig.minOpportunityScore ?? workspace.monitorConfig.minOpportunityScore)),
       regions: body.monitorConfig.regions?.length ? body.monitorConfig.regions : workspace.monitorConfig.regions,
     };
+  }
+
+  if (body.leadGenConfig) {
+    workspace.leadGenConfig = {
+      consentRequired: body.leadGenConfig.consentRequired ?? workspace.leadGenConfig.consentRequired,
+      firstPartyOnly: body.leadGenConfig.firstPartyOnly ?? workspace.leadGenConfig.firstPartyOnly,
+      allowedChannels: body.leadGenConfig.allowedChannels?.length
+        ? body.leadGenConfig.allowedChannels
+        : workspace.leadGenConfig.allowedChannels,
+      suppressionList: body.leadGenConfig.suppressionList ?? workspace.leadGenConfig.suppressionList,
+    };
+  }
+
+  if (body.monitorConfig || body.leadGenConfig) {
     await saveWorkspace(workspace);
   }
 

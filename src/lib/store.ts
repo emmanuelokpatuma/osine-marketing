@@ -23,6 +23,12 @@ const DEFAULT_WORKSPACE: Workspace = {
     minOpportunityScore: 45,
     regions: ["GB"],
   },
+  leadGenConfig: {
+    consentRequired: true,
+    firstPartyOnly: true,
+    allowedChannels: ["email", "retargeting", "crm"],
+    suppressionList: [],
+  },
 };
 
 function dbEnabled(): boolean {
@@ -38,6 +44,12 @@ function normalizeWorkspace(input: Workspace): Workspace {
       refreshSeconds: input.monitorConfig?.refreshSeconds ?? 60,
       minOpportunityScore: input.monitorConfig?.minOpportunityScore ?? 45,
       regions: input.monitorConfig?.regions ?? ["GB"],
+    },
+    leadGenConfig: {
+      consentRequired: input.leadGenConfig?.consentRequired ?? true,
+      firstPartyOnly: input.leadGenConfig?.firstPartyOnly ?? true,
+      allowedChannels: input.leadGenConfig?.allowedChannels ?? ["email", "retargeting", "crm"],
+      suppressionList: input.leadGenConfig?.suppressionList ?? [],
     },
   };
 }
@@ -78,6 +90,7 @@ function parseTrackedEntityRow(row: {
 async function getWorkspaceFromDb(): Promise<Workspace> {
   const entities = await prisma.trackedEntity.findMany({ orderBy: { updatedAt: "desc" } });
   const monitor = await prisma.monitorConfig.findUnique({ where: { id: 1 } });
+  const leadGen = await prisma.leadGenConfig.findUnique({ where: { id: 1 } });
 
   const brandRow = entities.find((item) => item.role === "brand") ?? null;
   const competitorRows = entities.filter((item) => item.role !== "brand");
@@ -90,6 +103,16 @@ async function getWorkspaceFromDb(): Promise<Workspace> {
       minOpportunityScore:
         monitor?.minOpportunityScore ?? DEFAULT_WORKSPACE.monitorConfig.minOpportunityScore,
       regions: monitor?.regions ? (JSON.parse(monitor.regions) as string[]) : ["GB"],
+    },
+    leadGenConfig: {
+      consentRequired: leadGen?.consentRequired ?? DEFAULT_WORKSPACE.leadGenConfig.consentRequired,
+      firstPartyOnly: leadGen?.firstPartyOnly ?? DEFAULT_WORKSPACE.leadGenConfig.firstPartyOnly,
+      allowedChannels: leadGen?.allowedChannels
+        ? (JSON.parse(leadGen.allowedChannels) as Workspace["leadGenConfig"]["allowedChannels"])
+        : DEFAULT_WORKSPACE.leadGenConfig.allowedChannels,
+      suppressionList: leadGen?.suppressionList
+        ? (JSON.parse(leadGen.suppressionList) as string[])
+        : DEFAULT_WORKSPACE.leadGenConfig.suppressionList,
     },
   };
 
@@ -140,6 +163,23 @@ async function saveWorkspaceToDb(workspace: Workspace): Promise<void> {
         refreshSeconds: workspace.monitorConfig.refreshSeconds,
         minOpportunityScore: workspace.monitorConfig.minOpportunityScore,
         regions: JSON.stringify(workspace.monitorConfig.regions),
+      },
+    });
+
+    await tx.leadGenConfig.upsert({
+      where: { id: 1 },
+      create: {
+        id: 1,
+        consentRequired: workspace.leadGenConfig.consentRequired,
+        firstPartyOnly: workspace.leadGenConfig.firstPartyOnly,
+        allowedChannels: JSON.stringify(workspace.leadGenConfig.allowedChannels),
+        suppressionList: JSON.stringify(workspace.leadGenConfig.suppressionList),
+      },
+      update: {
+        consentRequired: workspace.leadGenConfig.consentRequired,
+        firstPartyOnly: workspace.leadGenConfig.firstPartyOnly,
+        allowedChannels: JSON.stringify(workspace.leadGenConfig.allowedChannels),
+        suppressionList: JSON.stringify(workspace.leadGenConfig.suppressionList),
       },
     });
   });

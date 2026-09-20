@@ -93,6 +93,16 @@ export function SettingsClient({
     await refreshSources(data.monitorConfig.regions);
   }
 
+  async function updateLeadGenConfig(partial: Partial<Workspace["leadGenConfig"]>) {
+    const response = await fetch("/api/entities", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ leadGenConfig: partial }),
+    });
+    const data = (await response.json()) as Workspace;
+    setWorkspace(data);
+  }
+
   const entities = [
     ...(workspace.brand ? [workspace.brand] : []),
     ...workspace.competitors,
@@ -152,6 +162,96 @@ export function SettingsClient({
             className="rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2"
           />
         </label>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-[var(--color-rule)] bg-white/85 p-5">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h3 className="text-lg">Compliant lead generation</h3>
+            <p className="mt-1 text-sm text-[var(--color-muted)]">
+              Keep the outreach stack first-party and consent-aware. Only export or retarget leads when the rules are satisfied.
+            </p>
+          </div>
+          <div className="rounded-full border border-[var(--color-rule)] px-3 py-1 text-xs uppercase tracking-[0.14em] text-[var(--color-muted)]">
+            compliant mode
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <label className="flex items-start gap-3 rounded-xl border border-[var(--color-rule)] p-4">
+            <input
+              type="checkbox"
+              checked={workspace.leadGenConfig.consentRequired}
+              onChange={(event) =>
+                updateLeadGenConfig({ consentRequired: event.target.checked })
+              }
+              className="mt-1"
+            />
+            <span>
+              <span className="block font-medium">Consent required</span>
+              <span className="block text-sm text-[var(--color-muted)]">Only allow outreach and exports for leads with an approved lawful basis or captured consent.</span>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 rounded-xl border border-[var(--color-rule)] p-4">
+            <input
+              type="checkbox"
+              checked={workspace.leadGenConfig.firstPartyOnly}
+              onChange={(event) =>
+                updateLeadGenConfig({ firstPartyOnly: event.target.checked })
+              }
+              className="mt-1"
+            />
+            <span>
+              <span className="block font-medium">First-party only</span>
+              <span className="block text-sm text-[var(--color-muted)]">Restrict exports to businesses collected from your own site, forms, or compliant public sources.</span>
+            </span>
+          </label>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Allowed channels</div>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              {(["email", "retargeting", "crm", "sms"] as const).map((channel) => (
+                <label key={channel} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={workspace.leadGenConfig.allowedChannels.includes(channel)}
+                    onChange={(event) => {
+                      const next = event.target.checked
+                        ? [...workspace.leadGenConfig.allowedChannels, channel]
+                        : workspace.leadGenConfig.allowedChannels.filter((item) => item !== channel);
+                      updateLeadGenConfig({ allowedChannels: next });
+                    }}
+                  />
+                  <span className="capitalize">{channel}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <label className="grid gap-2 rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Suppression list</div>
+            <textarea
+              value={workspace.leadGenConfig.suppressionList.join("\n")}
+              onChange={(event) => {
+                const suppressionList = event.target.value
+                  .split("\n")
+                  .map((item) => item.trim())
+                  .filter(Boolean);
+                setWorkspace({
+                  ...workspace,
+                  leadGenConfig: { ...workspace.leadGenConfig, suppressionList },
+                });
+              }}
+              onBlur={() => updateLeadGenConfig({ suppressionList: workspace.leadGenConfig.suppressionList })}
+              className="min-h-28 rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2 text-sm"
+              placeholder="example.com\nspam@domain.com"
+            />
+            <div className="text-xs text-[var(--color-muted)]">One domain or email per line. Use this to exclude contacts you must not market to.</div>
+          </label>
+        </div>
       </section>
 
       <section className="mt-6 rounded-2xl border border-[var(--color-rule)] bg-white/85 p-5">

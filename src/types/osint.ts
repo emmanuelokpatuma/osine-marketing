@@ -40,6 +40,12 @@ export type Workspace = {
     minOpportunityScore: number;
     regions: string[];
   };
+  leadGenConfig: {
+    consentRequired: boolean;
+    firstPartyOnly: boolean;
+    allowedChannels: Array<"email" | "retargeting" | "crm" | "sms">;
+    suppressionList: string[];
+  };
 };
 
 export type RawSignal = {

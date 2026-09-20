@@ -16,6 +16,16 @@ model MonitorConfig {
   updatedAt            DateTime @updatedAt
 }
 
+model LeadGenConfig {
+  id               Int      @id
+  consentRequired  Boolean
+  firstPartyOnly   Boolean
+  allowedChannels  String
+  suppressionList  String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
 model TrackedEntity {
   id         String   @id
   name       String

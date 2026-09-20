@@ -77,6 +77,17 @@ The system is designed to work with a broad, region-aware catalog of public sour
 - Hiring-intent and company-growth analysis
 - Competitive monitoring and sector expansion signals
 - Lead scoring using source evidence and relevance
+- Compliant lead generation with consent-aware exports and suppression lists
+
+## Compliant lead generation mode
+
+Use the app as a first-party lead generator, not as a covert tracker.
+
+- Capture consent or lawful basis before outreach.
+- Limit exports to approved channels only.
+- Maintain a suppression list for contacts/domains you must not market to.
+- Keep data use aligned with UK GDPR and PECR.
+- Retarget only your own site visitors and consented audiences.
 
 ## Architecture
 
