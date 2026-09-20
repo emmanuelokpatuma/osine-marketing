@@ -97,7 +97,6 @@ export default async function Home() {
     }, {}),
   )
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
     .map(([sector, count]) => ({ sector, count, ...sectorFocusFor(sector) }));
 
   return (
