@@ -129,3 +129,21 @@ Open http://localhost:3005
 - Public data and fallback signals keep the prototype useful even without keys.
 - Optional keys can be added later for richer live coverage.
 - Deployment and scaling can move to hosted Postgres providers later if needed.
+
+## Deploy live (Vercel)
+
+1. Push your latest code to GitHub.
+2. In Vercel, import the repository.
+3. In project settings, set environment variables from `.env.production.example`.
+4. Use a managed Postgres URL for `DATABASE_URL` in production.
+5. Deploy.
+
+After deploy, verify:
+
+- Home page loads.
+- `/api/sources` responds.
+- `/api/health` responds with status `ok`.
+
+## Production env template
+
+Use `.env.production.example` as the baseline for production variables.

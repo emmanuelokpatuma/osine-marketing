@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
 import "./globals.css";
 
-const display = Newsreader({
+const display = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["500", "600", "700"],
 });
 
-const bodyFont = IBM_Plex_Sans({
+const bodyFont = Instrument_Sans({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const mono = IBM_Plex_Mono({
+const mono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "500"],
@@ -29,10 +29,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${bodyFont.variable} ${mono.variable} h-full antialiased`}>
-      <body className="min-h-full bg-[var(--color-bg)] text-[var(--color-ink)]">
+      <body className="min-h-full bg-[var(--ink)] text-[var(--text)]">
         <div className="min-h-screen lg:flex">
           <Sidebar />
-          <main className="flex-1 p-6 lg:p-10">{children}</main>
+          <main className="flex-1 px-6 py-8 lg:px-12 lg:py-10">{children}</main>
         </div>
       </body>
     </html>

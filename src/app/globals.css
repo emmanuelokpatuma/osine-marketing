@@ -1,14 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #e7ecd9;
-  --color-panel: #f6f8ee;
-  --color-ink: #1a2217;
-  --color-muted: #5b6656;
-  --color-rule: #cdd7bf;
-  --color-accent: #556b2f;
-  --color-accent-soft: #e1e8cf;
-  --color-danger: #962a2a;
+  --ink: #14171c;
+  --paper: #edeae0;
+  --brass: #b98a2e;
+  --signal: #2e6e64;
+  --rule: #383d45;
+  --text: #d9d5ca;
+  --muted: #a9a394;
+
+  /* Compatibility aliases for existing components */
+  --color-bg: var(--ink);
+  --color-panel: rgba(237, 234, 224, 0.06);
+  --color-ink: var(--paper);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--brass);
+  --color-accent-soft: rgba(185, 138, 46, 0.16);
+  --color-danger: #c76868;
 }
 
 @theme inline {
@@ -17,35 +26,94 @@
 }
 
 body {
-  background:
-    radial-gradient(circle at 12% 18%, rgba(85, 107, 47, 0.22) 0%, transparent 30%),
-    radial-gradient(circle at 82% 12%, rgba(122, 140, 86, 0.18) 0%, transparent 26%),
-    radial-gradient(circle at 84% 84%, rgba(168, 138, 64, 0.12) 0%, transparent 24%),
-    linear-gradient(180deg, #f7f9ef 0%, var(--color-bg) 100%);
-  color: var(--color-ink);
+  background: var(--ink);
+  color: var(--text);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   min-height: 100vh;
 }
 
 ::selection {
-  background: rgba(85, 107, 47, 0.22);
-  color: var(--color-ink);
+  background: rgba(185, 138, 46, 0.28);
+  color: var(--text);
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-display), ui-serif, Georgia, serif;
+  letter-spacing: -0.01em;
 }
 
 a {
   color: inherit;
 }
 
+.kicker {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.data-mono {
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.rule-section {
+  border-top: 1px solid var(--rule);
+  padding-top: 32px;
+}
+
+.instrument-button {
+  border: 1px solid var(--brass);
+  border-radius: 3px;
+  padding: 9px 14px;
+  font-size: 14px;
+  transition: opacity 140ms ease;
+}
+
+.instrument-button:hover {
+  opacity: 0.82;
+}
+
+.instrument-button-primary {
+  background: var(--brass);
+  color: #121418;
+}
+
+.instrument-button-quiet {
+  color: var(--text);
+}
+
+.hero-map {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.hero-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 58%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--brass) 45%, var(--brass) 55%, transparent 100%);
+  transform: translateX(-110%);
+  animation: radar-pass 1700ms cubic-bezier(0.22, 0.61, 0.36, 1) 250ms 1 forwards;
+}
+
+@keyframes radar-pass {
+  to {
+    transform: translateX(110%);
+  }
+}
+
 @media (max-width: 1023px) {
   aside {
     width: 100%;
     border-right: 0;
-    border-bottom: 1px solid var(--color-rule);
+    border-bottom: 1px solid var(--rule);
   }
 }
