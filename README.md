@@ -78,6 +78,7 @@ The system is designed to work with a broad, region-aware catalog of public sour
 - Competitive monitoring and sector expansion signals
 - Lead scoring using source evidence and relevance
 - Compliant lead generation with consent-aware exports and suppression lists
+- Sector-targeted lead generation with explicit industry filters
 
 ## Compliant lead generation mode
 
@@ -86,6 +87,7 @@ Use the app as a first-party lead generator, not as a covert tracker.
 - Capture consent or lawful basis before outreach.
 - Limit exports to approved channels only.
 - Maintain a suppression list for contacts/domains you must not market to.
+- Specify sectors when you want exports narrowed to one market.
 - Keep data use aligned with UK GDPR and PECR.
 - Retarget only your own site visitors and consented audiences.
 
@@ -98,6 +100,7 @@ Use the app as a first-party lead generator, not as a covert tracker.
 - JSON fallback for environments without a database
 - Region-aware source catalog for global coverage
 - Opportunity scoring engine with evidence-backed results
+- Optional Gemini-powered outreach insight generation for lead messaging
 
 ## Free setup
 
@@ -133,12 +136,16 @@ Open http://localhost:3005
 - `/` Global opportunity radar
 - `/live` Live monitor
 - `/settings` Region and signal profile setup
+- `/leads` Compliance-aware export and sector targeting
+- `/api/leads/insight` Gemini-backed outreach brief
 
 ## Notes
 
 - The app is intentionally designed to work without paid APIs.
 - Public data and fallback signals keep the prototype useful even without keys.
 - Optional keys can be added later for richer live coverage.
+- Set `GEMINI_API_KEY` to enable AI-generated outreach guidance.
+- Set `GEMINI_MODEL` if you want to override the default Gemini model.
 - Deployment and scaling can move to hosted Postgres providers later if needed.
 
 ## Deploy live (Vercel)

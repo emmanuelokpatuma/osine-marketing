@@ -1,0 +1,41 @@
+{
+  "brand": {
+    "id": "seed-brand",
+    "name": "My Cloud Consultancy",
+    "role": "brand",
+    "keywords": [
+      "aws",
+      "kubernetes",
+      "platform engineering",
+      "devops"
+    ],
+    "countries": [
+      "GB"
+    ],
+    "services": [
+      "cloud migration",
+      "platform engineering",
+      "devsecops"
+    ],
+    "sector": "IT Services"
+  },
+  "competitors": [],
+  "monitorConfig": {
+    "refreshSeconds": 60,
+    "minOpportunityScore": 45,
+    "regions": [
+      "GB"
+    ]
+  },
+  "leadGenConfig": {
+    "consentRequired": true,
+    "firstPartyOnly": true,
+    "allowedChannels": [
+      "email",
+      "retargeting",
+      "crm"
+    ],
+    "suppressionList": [],
+    "targetSectors": []
+  }
+}

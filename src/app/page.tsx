@@ -54,6 +54,9 @@ export default async function Home() {
             <a href="/settings" className="instrument-button instrument-button-quiet">
               Configure regions
             </a>
+            <a href="/leads" className="instrument-button instrument-button-quiet">
+              Open leads export
+            </a>
           </div>
         </section>
 

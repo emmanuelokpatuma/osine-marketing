@@ -45,6 +45,7 @@ export type Workspace = {
     firstPartyOnly: boolean;
     allowedChannels: Array<"email" | "retargeting" | "crm" | "sms">;
     suppressionList: string[];
+    targetSectors: string[];
   };
 };
 

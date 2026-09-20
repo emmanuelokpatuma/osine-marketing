@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV = [
   { href: "/", label: "Global radar", note: "Opportunity feed" },
   { href: "/live", label: "Live monitor", note: "Auto-refresh leads" },
+  { href: "/leads", label: "Leads", note: "CRM-ready export" },
   { href: "/settings", label: "Signal profiles", note: "Regions and targets" },
 ];
 

@@ -48,6 +48,7 @@ export async function PATCH(request: NextRequest) {
       firstPartyOnly?: boolean;
       allowedChannels?: Array<"email" | "retargeting" | "crm" | "sms">;
       suppressionList?: string[];
+      targetSectors?: string[];
     };
   };
 
@@ -68,6 +69,7 @@ export async function PATCH(request: NextRequest) {
         ? body.leadGenConfig.allowedChannels
         : workspace.leadGenConfig.allowedChannels,
       suppressionList: body.leadGenConfig.suppressionList ?? workspace.leadGenConfig.suppressionList,
+      targetSectors: body.leadGenConfig.targetSectors ?? workspace.leadGenConfig.targetSectors,
     };
   }
 

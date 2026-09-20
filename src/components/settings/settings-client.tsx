@@ -210,6 +210,33 @@ export function SettingsClient({
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Target sectors</div>
+            <textarea
+              value={workspace.leadGenConfig.targetSectors.join("\n")}
+              onChange={(event) => {
+                const targetSectors = event.target.value
+                  .split("\n")
+                  .map((item) => item.trim())
+                  .filter(Boolean);
+                setWorkspace({
+                  ...workspace,
+                  leadGenConfig: { ...workspace.leadGenConfig, targetSectors },
+                });
+              }}
+              onBlur={() => updateLeadGenConfig({ targetSectors: workspace.leadGenConfig.targetSectors })}
+              className="min-h-28 rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2 text-sm"
+              placeholder="Technology\nConstruction\nReal Estate"
+            />
+            <div className="text-xs text-[var(--color-muted)]">One sector per line. If blank, exports include all sectors.</div>
+          </label>
+
+          <div className="rounded-xl border border-[var(--color-rule)] p-4 text-sm text-[var(--color-muted)]">
+            Sector targeting narrows the lead feed without changing compliance rules. Use it to focus exports on one market at a time, such as real estate, logistics, or professional services.
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-[var(--color-rule)] p-4">
             <div className="font-medium">Allowed channels</div>
             <div className="mt-3 grid grid-cols-2 gap-2 text-sm">

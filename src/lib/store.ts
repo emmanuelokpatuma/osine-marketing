@@ -28,6 +28,7 @@ const DEFAULT_WORKSPACE: Workspace = {
     firstPartyOnly: true,
     allowedChannels: ["email", "retargeting", "crm"],
     suppressionList: [],
+    targetSectors: [],
   },
 };
 
@@ -50,6 +51,7 @@ function normalizeWorkspace(input: Workspace): Workspace {
       firstPartyOnly: input.leadGenConfig?.firstPartyOnly ?? true,
       allowedChannels: input.leadGenConfig?.allowedChannels ?? ["email", "retargeting", "crm"],
       suppressionList: input.leadGenConfig?.suppressionList ?? [],
+      targetSectors: input.leadGenConfig?.targetSectors ?? [],
     },
   };
 }
@@ -113,6 +115,9 @@ async function getWorkspaceFromDb(): Promise<Workspace> {
       suppressionList: leadGen?.suppressionList
         ? (JSON.parse(leadGen.suppressionList) as string[])
         : DEFAULT_WORKSPACE.leadGenConfig.suppressionList,
+      targetSectors: leadGen?.targetSectors
+        ? (JSON.parse(leadGen.targetSectors) as string[])
+        : DEFAULT_WORKSPACE.leadGenConfig.targetSectors,
     },
   };
 
@@ -174,12 +179,14 @@ async function saveWorkspaceToDb(workspace: Workspace): Promise<void> {
         firstPartyOnly: workspace.leadGenConfig.firstPartyOnly,
         allowedChannels: JSON.stringify(workspace.leadGenConfig.allowedChannels),
         suppressionList: JSON.stringify(workspace.leadGenConfig.suppressionList),
+        targetSectors: JSON.stringify(workspace.leadGenConfig.targetSectors),
       },
       update: {
         consentRequired: workspace.leadGenConfig.consentRequired,
         firstPartyOnly: workspace.leadGenConfig.firstPartyOnly,
         allowedChannels: JSON.stringify(workspace.leadGenConfig.allowedChannels),
         suppressionList: JSON.stringify(workspace.leadGenConfig.suppressionList),
+        targetSectors: JSON.stringify(workspace.leadGenConfig.targetSectors),
       },
     });
   });
