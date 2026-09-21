@@ -29,6 +29,11 @@ const DEFAULT_WORKSPACE: Workspace = {
     allowedChannels: ["email", "retargeting", "crm"],
     suppressionList: [],
     targetSectors: [],
+    minCompanySize: 50,
+    maxCompanySize: 5000,
+    minOpportunityValue: 20000,
+    preferredSignalTypes: ["tender", "hiring", "company_change", "news", "planning"],
+    timeWindowDays: 30,
   },
 };
 
@@ -52,6 +57,12 @@ function normalizeWorkspace(input: Workspace): Workspace {
       allowedChannels: input.leadGenConfig?.allowedChannels ?? ["email", "retargeting", "crm"],
       suppressionList: input.leadGenConfig?.suppressionList ?? [],
       targetSectors: input.leadGenConfig?.targetSectors ?? [],
+      minCompanySize: input.leadGenConfig?.minCompanySize ?? 50,
+      maxCompanySize: input.leadGenConfig?.maxCompanySize ?? 5000,
+      minOpportunityValue: input.leadGenConfig?.minOpportunityValue ?? 20000,
+      preferredSignalTypes:
+        input.leadGenConfig?.preferredSignalTypes ?? ["tender", "hiring", "company_change", "news", "planning"],
+      timeWindowDays: input.leadGenConfig?.timeWindowDays ?? 30,
     },
   };
 }
@@ -118,6 +129,14 @@ async function getWorkspaceFromDb(): Promise<Workspace> {
       targetSectors: leadGen?.targetSectors
         ? (JSON.parse(leadGen.targetSectors) as string[])
         : DEFAULT_WORKSPACE.leadGenConfig.targetSectors,
+      minCompanySize: leadGen?.minCompanySize ?? DEFAULT_WORKSPACE.leadGenConfig.minCompanySize,
+      maxCompanySize: leadGen?.maxCompanySize ?? DEFAULT_WORKSPACE.leadGenConfig.maxCompanySize,
+      minOpportunityValue:
+        leadGen?.minOpportunityValue ?? DEFAULT_WORKSPACE.leadGenConfig.minOpportunityValue,
+      preferredSignalTypes: leadGen?.preferredSignalTypes
+        ? (JSON.parse(leadGen.preferredSignalTypes) as Workspace["leadGenConfig"]["preferredSignalTypes"])
+        : DEFAULT_WORKSPACE.leadGenConfig.preferredSignalTypes,
+      timeWindowDays: leadGen?.timeWindowDays ?? DEFAULT_WORKSPACE.leadGenConfig.timeWindowDays,
     },
   };
 
@@ -180,6 +199,11 @@ async function saveWorkspaceToDb(workspace: Workspace): Promise<void> {
         allowedChannels: JSON.stringify(workspace.leadGenConfig.allowedChannels),
         suppressionList: JSON.stringify(workspace.leadGenConfig.suppressionList),
         targetSectors: JSON.stringify(workspace.leadGenConfig.targetSectors),
+        minCompanySize: workspace.leadGenConfig.minCompanySize,
+        maxCompanySize: workspace.leadGenConfig.maxCompanySize,
+        minOpportunityValue: workspace.leadGenConfig.minOpportunityValue,
+        preferredSignalTypes: JSON.stringify(workspace.leadGenConfig.preferredSignalTypes),
+        timeWindowDays: workspace.leadGenConfig.timeWindowDays,
       },
       update: {
         consentRequired: workspace.leadGenConfig.consentRequired,
@@ -187,6 +211,11 @@ async function saveWorkspaceToDb(workspace: Workspace): Promise<void> {
         allowedChannels: JSON.stringify(workspace.leadGenConfig.allowedChannels),
         suppressionList: JSON.stringify(workspace.leadGenConfig.suppressionList),
         targetSectors: JSON.stringify(workspace.leadGenConfig.targetSectors),
+        minCompanySize: workspace.leadGenConfig.minCompanySize,
+        maxCompanySize: workspace.leadGenConfig.maxCompanySize,
+        minOpportunityValue: workspace.leadGenConfig.minOpportunityValue,
+        preferredSignalTypes: JSON.stringify(workspace.leadGenConfig.preferredSignalTypes),
+        timeWindowDays: workspace.leadGenConfig.timeWindowDays,
       },
     });
   });

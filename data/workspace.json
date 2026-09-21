@@ -36,6 +36,17 @@
       "crm"
     ],
     "suppressionList": [],
-    "targetSectors": []
+    "targetSectors": [],
+    "minCompanySize": 50,
+    "maxCompanySize": 5000,
+    "minOpportunityValue": 20000,
+    "preferredSignalTypes": [
+      "tender",
+      "hiring",
+      "company_change",
+      "news",
+      "planning"
+    ],
+    "timeWindowDays": 30
   }
 }

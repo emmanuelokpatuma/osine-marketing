@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWorkspace, removeEntity, saveWorkspace, upsertEntity } from "@/lib/store";
 import type { TrackedEntity } from "@/types/osint";
+import type { SignalType } from "@/types/osint";
 
 export async function GET() {
   const workspace = await getWorkspace();
@@ -49,6 +50,11 @@ export async function PATCH(request: NextRequest) {
       allowedChannels?: Array<"email" | "retargeting" | "crm" | "sms">;
       suppressionList?: string[];
       targetSectors?: string[];
+      minCompanySize?: number;
+      maxCompanySize?: number;
+      minOpportunityValue?: number;
+      preferredSignalTypes?: SignalType[];
+      timeWindowDays?: number;
     };
   };
 
@@ -70,6 +76,19 @@ export async function PATCH(request: NextRequest) {
         : workspace.leadGenConfig.allowedChannels,
       suppressionList: body.leadGenConfig.suppressionList ?? workspace.leadGenConfig.suppressionList,
       targetSectors: body.leadGenConfig.targetSectors ?? workspace.leadGenConfig.targetSectors,
+      minCompanySize: Math.max(1, body.leadGenConfig.minCompanySize ?? workspace.leadGenConfig.minCompanySize),
+      maxCompanySize: Math.max(
+        body.leadGenConfig.minCompanySize ?? workspace.leadGenConfig.minCompanySize,
+        body.leadGenConfig.maxCompanySize ?? workspace.leadGenConfig.maxCompanySize,
+      ),
+      minOpportunityValue: Math.max(
+        0,
+        body.leadGenConfig.minOpportunityValue ?? workspace.leadGenConfig.minOpportunityValue,
+      ),
+      preferredSignalTypes: body.leadGenConfig.preferredSignalTypes?.length
+        ? body.leadGenConfig.preferredSignalTypes
+        : workspace.leadGenConfig.preferredSignalTypes,
+      timeWindowDays: Math.max(1, body.leadGenConfig.timeWindowDays ?? workspace.leadGenConfig.timeWindowDays),
     };
   }
 

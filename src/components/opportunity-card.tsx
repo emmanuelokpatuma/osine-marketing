@@ -41,8 +41,13 @@ export function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
         </div>
       </div>
 
-      <div className="mt-3 text-sm text-[var(--color-muted)]">
-        Confidence {(opportunity.confidence * 100).toFixed(0)}%
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-[var(--color-muted)]">
+        <span>Confidence {(opportunity.confidence * 100).toFixed(0)}%</span>
+        {opportunity.signalStrength ? (
+          <span className="rounded-full border border-[var(--color-rule)] px-2 py-0.5 text-xs uppercase tracking-[0.12em]">
+            Signal {opportunity.signalStrength}
+          </span>
+        ) : null}
       </div>
 
       <ul className="mt-4 space-y-1 text-sm">
@@ -54,6 +59,19 @@ export function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
       <p className="mt-4 rounded-xl border border-[var(--color-rule)] bg-[var(--color-panel)] p-3 text-sm">
         <span className="font-medium">Recommended move:</span> {opportunity.recommendedAction}
       </p>
+
+      {opportunity.scoreBreakdown?.length ? (
+        <div className="mt-4 rounded-xl border border-[var(--color-rule)] bg-[var(--color-panel)] p-3">
+          <p className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">Why this scored</p>
+          <ul className="mt-2 space-y-1 text-sm">
+            {opportunity.scoreBreakdown.map((item) => (
+              <li key={item.label}>
+                <span className="font-medium">{item.label} (+{item.points})</span>: {item.evidence}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="mt-4">
         <p className="text-xs uppercase tracking-[0.15em] text-[var(--color-muted)]">Evidence</p>

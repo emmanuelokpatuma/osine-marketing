@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { ApiSourceDefinition, EntityRole, TrackedEntity, Workspace } from "@/types/osint";
+import type { ApiSourceDefinition, EntityRole, SignalType, TrackedEntity, Workspace } from "@/types/osint";
+
+const SIGNAL_OPTIONS: SignalType[] = ["tender", "hiring", "company_change", "news", "planning"];
 
 type FormState = {
   name: string;
@@ -234,6 +236,110 @@ export function SettingsClient({
           <div className="rounded-xl border border-[var(--color-rule)] p-4 text-sm text-[var(--color-muted)]">
             Sector targeting narrows the lead feed without changing compliance rules. Use it to focus exports on one market at a time, such as real estate, logistics, or professional services.
           </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Minimum company size (employees, proxy)</div>
+            <input
+              type="number"
+              min={1}
+              value={workspace.leadGenConfig.minCompanySize}
+              onChange={(event) => {
+                const minCompanySize = Number(event.target.value || "1");
+                setWorkspace({
+                  ...workspace,
+                  leadGenConfig: { ...workspace.leadGenConfig, minCompanySize },
+                });
+              }}
+              onBlur={() => updateLeadGenConfig({ minCompanySize: workspace.leadGenConfig.minCompanySize })}
+              className="rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2 text-sm"
+            />
+            <div className="text-xs text-[var(--color-muted)]">Used as a signal-weighting proxy, not an exact headcount.</div>
+          </label>
+
+          <label className="grid gap-2 rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Maximum company size (employees, proxy)</div>
+            <input
+              type="number"
+              min={workspace.leadGenConfig.minCompanySize}
+              value={workspace.leadGenConfig.maxCompanySize}
+              onChange={(event) => {
+                const maxCompanySize = Number(event.target.value || String(workspace.leadGenConfig.minCompanySize));
+                setWorkspace({
+                  ...workspace,
+                  leadGenConfig: { ...workspace.leadGenConfig, maxCompanySize },
+                });
+              }}
+              onBlur={() => updateLeadGenConfig({ maxCompanySize: workspace.leadGenConfig.maxCompanySize })}
+              className="rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2 text-sm"
+            />
+            <div className="text-xs text-[var(--color-muted)]">Keep this broad if you want more opportunities.</div>
+          </label>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Minimum opportunity value (GBP, proxy)</div>
+            <input
+              type="number"
+              min={0}
+              step={1000}
+              value={workspace.leadGenConfig.minOpportunityValue}
+              onChange={(event) => {
+                const minOpportunityValue = Number(event.target.value || "0");
+                setWorkspace({
+                  ...workspace,
+                  leadGenConfig: { ...workspace.leadGenConfig, minOpportunityValue },
+                });
+              }}
+              onBlur={() => updateLeadGenConfig({ minOpportunityValue: workspace.leadGenConfig.minOpportunityValue })}
+              className="rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2 text-sm"
+            />
+            <div className="text-xs text-[var(--color-muted)]">Used as a value-confidence threshold from public signal proxies.</div>
+          </label>
+
+          <label className="grid gap-2 rounded-xl border border-[var(--color-rule)] p-4">
+            <div className="font-medium">Signal time window (days)</div>
+            <input
+              type="number"
+              min={1}
+              max={365}
+              value={workspace.leadGenConfig.timeWindowDays}
+              onChange={(event) => {
+                const timeWindowDays = Number(event.target.value || "30");
+                setWorkspace({
+                  ...workspace,
+                  leadGenConfig: { ...workspace.leadGenConfig, timeWindowDays },
+                });
+              }}
+              onBlur={() => updateLeadGenConfig({ timeWindowDays: workspace.leadGenConfig.timeWindowDays })}
+              className="rounded-lg border border-[var(--color-rule)] bg-[var(--color-panel)] px-3 py-2 text-sm"
+            />
+            <div className="text-xs text-[var(--color-muted)]">Signals older than this window are down-ranked in scoring.</div>
+          </label>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-[var(--color-rule)] p-4">
+          <div className="font-medium">Preferred signal types</div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            {SIGNAL_OPTIONS.map((signalType) => (
+              <label key={signalType} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={workspace.leadGenConfig.preferredSignalTypes.includes(signalType)}
+                  onChange={(event) => {
+                    const preferredSignalTypes = event.target.checked
+                      ? [...workspace.leadGenConfig.preferredSignalTypes, signalType]
+                      : workspace.leadGenConfig.preferredSignalTypes.filter((item) => item !== signalType);
+                    updateLeadGenConfig({ preferredSignalTypes });
+                  }}
+                />
+                <span className="capitalize">{signalType.replace("_", " ")}</span>
+              </label>
+            ))}
+          </div>
+          <div className="mt-2 text-xs text-[var(--color-muted)]">Signal types selected here receive stronger scoring weight.</div>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">

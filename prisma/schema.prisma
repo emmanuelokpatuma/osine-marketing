@@ -23,6 +23,11 @@ model LeadGenConfig {
   allowedChannels  String
   suppressionList  String
   targetSectors    String
+  minCompanySize   Int
+  maxCompanySize   Int
+  minOpportunityValue Int
+  preferredSignalTypes String
+  timeWindowDays   Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }

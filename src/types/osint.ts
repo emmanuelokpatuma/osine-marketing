@@ -35,6 +35,11 @@ export type OpportunityProfile = {
   geography: string;
   services: string[];
   sectors: string[];
+  minCompanySize: number;
+  maxCompanySize: number;
+  minOpportunityValue: number;
+  preferredSignalTypes: SignalType[];
+  timeWindowDays: number;
 };
 
 export type EntityRole = "brand" | "competitor";
@@ -63,6 +68,11 @@ export type Workspace = {
     allowedChannels: Array<"email" | "retargeting" | "crm" | "sms">;
     suppressionList: string[];
     targetSectors: string[];
+    minCompanySize: number;
+    maxCompanySize: number;
+    minOpportunityValue: number;
+    preferredSignalTypes: SignalType[];
+    timeWindowDays: number;
   };
 };
 
@@ -86,9 +96,15 @@ export type Opportunity = {
   location: string;
   sector: string;
   score: number;
+  signalStrength?: "high" | "medium" | "emerging";
   confidence: number;
   matchedServices: string[];
   reasons: string[];
+  scoreBreakdown?: Array<{
+    label: string;
+    points: number;
+    evidence: string;
+  }>;
   evidence: Array<{
     source: SourceName;
     signalType: SignalType;
